@@ -7,4 +7,4 @@ export interface Position {
   bottom?: Widgets.Types.TPosition;
 }
 
-export type BlockCreator = (position?: Position) => Promise<Widgets.BoxElement>;
+// export type BlockCreator = (position?: Position) => Promise<Widgets.BoxElement>;

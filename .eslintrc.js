@@ -17,7 +17,10 @@ module.exports = {
     'node_modules/',
   ],
   'rules': {
-     'import/prefer-default-export': 'off',
-     'no-console': 'off',
+    'import/prefer-default-export': 'off',
+    'no-console': 'off',
+    'class-methods-use-this': 'off',
+    '@typescript-eslint/no-empty-function': 'off',
+    'max-len': ["error", { "code": 120 }],
   }
 };

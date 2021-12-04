@@ -1,20 +1,23 @@
-import blessed from 'blessed';
-import { BlockCreator, Position } from './types';
+import blessed, { Widgets } from 'blessed';
+import { Position } from './types';
 import { Git } from '../services/git';
+import { Box } from './Box';
 
-export const createStashBox: BlockCreator = async (position?: Position) => {
-  const stashBox = blessed.box({
-    left: position?.left,
-    right: position?.right,
-    top: position?.top,
-    bottom: position?.bottom,
-    border: 'line',
-    label: 'Stash',
-  });
+export class StashBox extends Box {
+  build(position?: Position): Widgets.BoxElement {
+    return blessed.box({
+      left: position?.left,
+      right: position?.right,
+      top: position?.top,
+      bottom: position?.bottom,
+      border: 'line',
+      label: 'Stash',
+    });
+  }
 
-  const git = new Git();
-  const stashList = await git.stashList();
-  console.log(stashList);
-
-  return stashBox;
-};
+  async postInit() {
+    const git = new Git();
+    const stashList = await git.stashList();
+    console.log(stashList);
+  }
+}

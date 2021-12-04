@@ -1,11 +1,16 @@
-import blessed from 'blessed';
-import { BlockCreator, Position } from './types';
+import blessed, { Widgets } from 'blessed';
+import { Position } from './types';
+import { Box } from './Box';
 
-export const createWorktreeBox: BlockCreator = async (position?: Position) => blessed.box({
-  left: position?.left,
-  right: position?.right,
-  top: position?.top,
-  bottom: position?.bottom,
-  border: 'line',
-  label: 'Worktree',
-});
+export class WorktreeBox extends Box {
+  build(position?: Position): Widgets.BoxElement {
+    return blessed.box({
+      left: position?.left,
+      right: position?.right,
+      top: position?.top,
+      bottom: position?.bottom,
+      border: 'line',
+      label: 'Worktree',
+    });
+  }
+}
