@@ -4,7 +4,9 @@ import { createBranchesBox } from './branchesBox';
 import { createStashBox } from './stashBox';
 import { BlockCreator } from './types';
 
-export const createMainMenu = (wrapper: Widgets.BoxElement, switchBlocks: (blockCreator: BlockCreator) => Promise<void>) => {
+type SwitchBlockCalback = (blockCreator: BlockCreator) => Promise<void>;
+
+export const createMainMenu = (wrapper: Widgets.BoxElement, switchBlocks: SwitchBlockCalback) => {
   const mainMenu = blessed.listbar({
     parent: wrapper,
     top: 0,
@@ -19,18 +21,18 @@ export const createMainMenu = (wrapper: Widgets.BoxElement, switchBlocks: (block
         fg: 'blue',
         hover: {
           fg: 'white',
-          bg: 'black'
-        }
+          bg: 'black',
+        },
       },
       selected: {
         fg: 'white',
-        bg: 'black'
-      }
+        bg: 'black',
+      },
     },
     items: [],
-    commands: []
+    commands: [],
   });
-  mainMenu.focus()
+  mainMenu.focus();
 
   const items = [{
     name: 'Worktree',
@@ -41,13 +43,13 @@ export const createMainMenu = (wrapper: Widgets.BoxElement, switchBlocks: (block
   }, {
     name: 'Stash',
     boxCreator: createStashBox,
-  }]
+  }];
 
   items.forEach((item) => {
     mainMenu.addItem(item.name as any, () => {
-      switchBlocks(item.boxCreator)
+      switchBlocks(item.boxCreator);
     });
-  })
+  });
 
   return mainMenu;
-}
+};

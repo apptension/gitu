@@ -1,6 +1,5 @@
 import { Widgets } from 'blessed';
 
-
 export interface Position {
   left?: Widgets.Types.TTopLeft;
   right?: Widgets.Types.TPosition;

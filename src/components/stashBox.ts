@@ -1,6 +1,7 @@
 import blessed from 'blessed';
 import { BlockCreator, Position } from './types';
-import { Git }  from './../services/git';
+import { Git } from '../services/git';
+
 export const createStashBox: BlockCreator = async (position?: Position) => {
   const stashBox = blessed.box({
     left: position?.left,

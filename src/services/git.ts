@@ -12,7 +12,7 @@ export class Git {
   }
 
   async log() {
-    return this.#git.log()
+    return this.#git.log();
   }
 
   async stashList() {
