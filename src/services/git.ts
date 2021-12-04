@@ -28,4 +28,11 @@ export class Git {
     }
     return files;
   }
+
+  async renameStash(index: number, newName: string) {
+    const dropResult = await this.#git.raw('stash', 'drop', `stash@{${index}}`);
+    const match = dropResult.match(/\(([0-9a-f]*)\)/m);
+    const stashSha = match?.[1];
+    await this.#git.raw('stash', 'store', '-m', `"${newName}"`, `${stashSha}`);
+  }
 }
