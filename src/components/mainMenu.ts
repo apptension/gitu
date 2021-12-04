@@ -4,7 +4,7 @@ import { createBranchesBox } from './branchesBox';
 import { createStashBox } from './stashBox';
 import { BlockCreator } from './types';
 
-export const createMainMenu = (wrapper: Widgets.BoxElement, switchBlocks: (blockCreator: BlockCreator) => void) => {
+export const createMainMenu = (wrapper: Widgets.BoxElement, switchBlocks: (blockCreator: BlockCreator) => Promise<void>) => {
   const mainMenu = blessed.listbar({
     parent: wrapper,
     top: 0,

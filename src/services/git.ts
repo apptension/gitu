@@ -14,4 +14,8 @@ export class Git {
   async log() {
     return this.#git.log()
   }
+
+  async stashList() {
+    return this.#git.stashList();
+  }
 }

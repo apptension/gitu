@@ -16,9 +16,9 @@ const wrapper = blessed.box({
   bottom: 0
 });
 
-const mainMenu = createMainMenu(wrapper, (boxCreator) => {
+const mainMenu = createMainMenu(wrapper, async (boxCreator) => {
   currentBox?.detach();
-  const box = boxCreator();
+  const box = await boxCreator();
   box.focus();
   wrapper.append(box);
 });
