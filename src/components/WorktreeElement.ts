@@ -45,8 +45,14 @@ export class WorktreeElement extends Element {
   }
 
   override async init(): Promise<void> {
-    await this.#logBox.init();
-    await this.#treeBox.init();
+    await this.#logBox.init(() => {
+      this.#treeBox.onEnter();
+      this.#box.screen.render();
+    });
+    await this.#treeBox.init(() => {
+      this.#logBox.onEnter();
+      this.#box.screen.render();
+    });
   }
 
   override async onEnter(): Promise<void> {

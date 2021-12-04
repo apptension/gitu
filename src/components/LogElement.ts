@@ -47,11 +47,12 @@ export class LogElement extends Element {
     this.applyBorderStyleForFocusedElement(this.#logsList, this.#box);
   }
 
-  override async init(): Promise<void> {
+  override async init(onTab?: () => void): Promise<void> {
     const log = await this.#git.log();
     log.all.forEach((logLine) => {
       this.#logsList.addItem(logLine.message);
     });
+    this.#logsList.key(['tab'], () => onTab?.());
   }
 
   override async onEnter(): Promise<void> {
