@@ -1,6 +1,5 @@
 import blessed, { Widgets } from 'blessed';
-import { Box } from './Box';
-import BoxOptions = Widgets.BoxOptions;
+import { Box, BoxConfig } from './Box';
 
 export class BranchesBox implements Box {
   #box: Widgets.BoxElement | null = null;
@@ -9,7 +8,7 @@ export class BranchesBox implements Box {
     return this.#box;
   }
 
-  build(config: BoxOptions) {
+  build(config: BoxConfig) {
     this.#box = blessed.box({
       ...(config ?? {}),
       border: 'line',

@@ -37,4 +37,9 @@ export class WorktreeBox implements Box {
       parent: this.#box,
     });
   }
+
+  async postInit(): Promise<void> {
+    this.#box!.focus();
+    await this.#logBox!.postInit();
+  }
 }

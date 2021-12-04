@@ -51,5 +51,7 @@ export const createMainMenu = (wrapper: Widgets.BoxElement, switchBoxes: SwitchB
     });
   });
 
+  mainMenu.selectTab(0);
+
   return mainMenu;
 };
