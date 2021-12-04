@@ -6,7 +6,7 @@
   "repository": "git@github.com:pgrzeszczak/gitu.git",
   "author": "Przemysław Grzeszczak <pgrzeszczak@apptension.com>",
   "license": "MIT",
-  "bin":{
+  "bin": {
     "gitu": "cli.js"
   },
   "scripts": {
@@ -14,7 +14,13 @@
     "dev": "tsc -w"
   },
   "devDependencies": {
+    "@types/blessed": "^0.1.19",
     "@types/node": "^16.11.11",
     "typescript": "^4.5.2"
+  },
+  "dependencies": {
+    "blessed": "^0.1.81",
+    "blessed-contrib": "^4.10.1",
+    "simple-git": "^2.48.0"
   }
 }
