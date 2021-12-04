@@ -1,6 +1,7 @@
 import blessed, { Widgets } from 'blessed';
-import { createCommitsBox } from './commitsBox';
+import { createWorktreeBox } from './worktreeBox';
 import { createBranchesBox } from './branchesBox';
+import { createStashBox } from './stashBox';
 import { BlockCreator } from './types';
 
 export const createMainMenu = (wrapper: Widgets.BoxElement, switchBlocks: (blockCreator: BlockCreator) => void) => {
@@ -32,11 +33,14 @@ export const createMainMenu = (wrapper: Widgets.BoxElement, switchBlocks: (block
   mainMenu.focus()
 
   const items = [{
-    name: 'Commits',
-    boxCreator: createCommitsBox,
+    name: 'Worktree',
+    boxCreator: createWorktreeBox,
   }, {
     name: 'Branches',
     boxCreator: createBranchesBox,
+  }, {
+    name: 'Stash',
+    boxCreator: createStashBox,
   }]
 
   items.forEach((item) => {
