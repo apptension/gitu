@@ -16,7 +16,17 @@ export class Git {
   }
 
   async stashList() {
-    return this.#git.stashList();
+    return this.#git.stashList({
+      format: {
+        hash: '%H',
+        date: '%aI',
+        message: '%gs',
+        refs: '%D',
+        body: '%b',
+        author_name: '%an',
+        author_email: '%ae',
+      },
+    } as any);
   }
 
   async getModifiedFilesFromStash(index: number) {
@@ -33,6 +43,6 @@ export class Git {
     const dropResult = await this.#git.raw('stash', 'drop', `stash@{${index}}`);
     const match = dropResult.match(/\(([0-9a-f]*)\)/m);
     const stashSha = match?.[1];
-    await this.#git.raw('stash', 'store', '-m', `"${newName}"`, `${stashSha}`);
+    await this.#git.raw('stash', 'store', '-m', `${newName}`, `${stashSha}`);
   }
 }

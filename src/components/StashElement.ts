@@ -99,6 +99,7 @@ export class StashElement extends Element {
         renameStashBox.detach();
         this.#stashMenuBox.detach();
         this.#stashListBox.focus();
+        await this.reloadStashes();
         this.#screen.render();
       }
     });
@@ -152,13 +153,17 @@ export class StashElement extends Element {
     };
   }
 
-  override async init(): Promise<void> {
+  async reloadStashes() {
     const stashList = await this.#git.stashList();
     const stashes = stashList.all;
-    console.error(stashes);
-    (this.#stashListBox as any).rows.on('select item', this.handleStashSelect());
     (this.#stashListBox as any).rows.on('select', this.handleStashEnter(stashes));
     this.#stashListBox.setData({ headers: [''], data: stashes.map((stashItem) => [stashItem.message]) });
+    (this.#stashListBox.rows as any).selected = 0;
+  }
+
+  override async init(): Promise<void> {
+    (this.#stashListBox as any).rows.on('select item', this.handleStashSelect());
+    await this.reloadStashes();
   }
 
   override async onEnter(): Promise<void> {
