@@ -1,9 +1,12 @@
 import blessed, { Widgets } from 'blessed';
 import { Box, BoxConfig } from './Box';
 import { LogBox } from './LogBox';
+import { TreeBox } from './TreeBox';
 
 export class WorktreeBox implements Box {
   #logBox: LogBox | null = null;
+
+  #treeBox: TreeBox | null = null;
 
   #box: Widgets.BoxElement | null = null;
 
@@ -14,16 +17,24 @@ export class WorktreeBox implements Box {
   build(config: BoxConfig) {
     this.#box = blessed.box({
       ...(config ?? {}),
-      border: 'line',
-      label: 'Worktree',
     });
 
-    // this.#logBox = new LogBox({
-    //   left: 0,
-    //   top: 0,
-    //   width: '50%',
-    //   height: '100%',
-    //   parent: box,
-    // });
+    this.#logBox = new LogBox();
+    this.#logBox.build({
+      left: 0,
+      top: 0,
+      width: '50%',
+      bottom: 0,
+      parent: this.#box,
+    });
+
+    this.#treeBox = new TreeBox();
+    this.#treeBox.build({
+      right: 0,
+      top: 0,
+      width: '50%',
+      bottom: 0,
+      parent: this.#box,
+    });
   }
 }
