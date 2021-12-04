@@ -1,0 +1,20 @@
+{
+  "name": "gitu",
+  "version": "0.0.1",
+  "description": "Git UI",
+  "main": "cli.js",
+  "repository": "git@github.com:pgrzeszczak/gitu.git",
+  "author": "Przemysław Grzeszczak <pgrzeszczak@apptension.com>",
+  "license": "MIT",
+  "bin":{
+    "gitu": "cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w"
+  },
+  "devDependencies": {
+    "@types/node": "^16.11.11",
+    "typescript": "^4.5.2"
+  }
+}
