@@ -18,9 +18,10 @@ const wrapper = blessed.box({
 
 const mainMenu = createMainMenu(wrapper, async (boxCreator) => {
   currentBox?.detach();
-  const box = await boxCreator();
+  const box = await boxCreator({ left: 0, top: 1, right: 0, bottom: 0 });
   box.focus();
   wrapper.append(box);
+  screen.render()
 });
 
 

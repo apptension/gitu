@@ -1,12 +1,12 @@
 import blessed from 'blessed';
-import { BlockCreator } from './types';
+import { BlockCreator, Position } from './types';
 
-export const createWorktreeBox: BlockCreator = async () => {
+export const createWorktreeBox: BlockCreator = async (position?: Position) => {
   return blessed.box({
-    left: 0,
-    right: 0,
-    top: 1,
-    bottom: 0,
+    left: position?.left,
+    right: position?.right,
+    top: position?.top,
+    bottom: position?.bottom,
     border: 'line',
     label: 'Worktree',
   });
