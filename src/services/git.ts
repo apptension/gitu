@@ -18,4 +18,14 @@ export class Git {
   async stashList() {
     return this.#git.stashList();
   }
+
+  async getModifiedFilesFromStash(index: number) {
+    const result = await this.#git.raw('stash', 'show', `stash@{${index}}`);
+    const lines = result.split('\n');
+    const files = [];
+    for (let i = 0; i < lines.length - 2; i += 1) {
+      files.push(lines[i].split('|')[0].trim());
+    }
+    return files;
+  }
 }
