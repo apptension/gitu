@@ -1,5 +1,4 @@
 import simpleGit, { SimpleGit } from 'simple-git';
-import {parseDiffResult} from "simple-git/src/lib/parsers/parse-diff-summary";
 
 export class Git {
   #git: SimpleGit;

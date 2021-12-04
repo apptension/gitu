@@ -14,6 +14,7 @@ export interface WorkTreeItem {
 
 export class WorkTree {
   #git: Git;
+
   #trackedFiles: string[] = [];
 
   constructor(git: Git) {

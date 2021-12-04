@@ -37,10 +37,14 @@ export class StashElement extends Element {
     this.#filesModifiedBox = this.createFilesModifiedBox();
     this.#stashMenuBox = this.createStashMenuBox();
     this.#diffBox = this.createDiffBox();
+    this.#screen = this.#stashListBox.screen;
+    (this.#stashListBox as any).rows.key(['tab'], () => { this.#filesModifiedBox.focus(); this.#screen.render(); });
+    (this.#filesModifiedBox as any).rows.key(['tab'], () => { this.#diffBox.focus(); this.#screen.render(); });
+    this.#diffBox.key(['tab'], () => { this.#stashListBox.focus(); this.#screen.render(); });
     this.applyBorderStyleForFocusedElement((this.#stashListBox as any).rows, this.#stashListBox);
     this.applyBorderStyleForFocusedElement((this.#filesModifiedBox as any).rows, this.#filesModifiedBox);
     this.applyBorderStyleForFocusedElement((this.#stashMenuBox as any).rows, this.#stashMenuBox);
-    this.#screen = this.#stashListBox.screen;
+    this.applyBorderStyleForFocusedElement(this.#diffBox, this.#diffBox);
   }
 
   defaultTableOptions() : contrib.Widgets.TableOptions {
@@ -56,7 +60,11 @@ export class StashElement extends Element {
   }
 
   createStashListBox() : contrib.Widgets.TableElement {
-    return contrib.table({ ...this.defaultTableOptions(), bottom: 0, label: 'Stashes' });
+    return contrib.table({
+      ...this.defaultTableOptions(),
+      bottom: 0,
+      label: 'Stashes',
+    });
   }
 
   createStashMenuBox() : contrib.Widgets.TableElement {
@@ -70,6 +78,7 @@ export class StashElement extends Element {
     });
     (stashMenuBox as any).rows.key(['escape'], () => {
       stashMenuBox.detach();
+      this.#selectedStashIndex = null;
       this.#stashListBox.focus();
       this.#screen.render();
     });
@@ -114,7 +123,6 @@ export class StashElement extends Element {
       ...this.defaultTableOptions(),
       left: '30%',
       height: '30%',
-      // bottom: 0,
       width: '70%',
       label: 'Files modified',
       interactive: false as any,
@@ -130,6 +138,9 @@ export class StashElement extends Element {
       width: '70%',
       label: 'Diff',
       tags: true,
+      scrollable: true,
+      alwaysScroll: true,
+      keyable: true,
     });
   }
 
@@ -139,6 +150,7 @@ export class StashElement extends Element {
       this.#filesModifiedBox.setData({ headers: [''], data: files.map((file) => [file]) });
       const diff = await this.#git.getStashDiff(index);
       this.#diffBox.setContent(diff);
+      (this.#diffBox as any).resetScroll();
       this.#screen.render();
     };
   }

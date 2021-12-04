@@ -1,5 +1,6 @@
 import { Widgets } from 'blessed';
 import { Git } from '../services/git';
+import BlessedElement = Widgets.BlessedElement;
 
 export interface ElementConfig {
   left?: Widgets.Types.TTopLeft;
@@ -22,8 +23,8 @@ export abstract class Element<T extends Widgets.BoxElement = Widgets.BoxElement>
   }
 
   applyBorderStyleForFocusedElement(
-    handleFocusOn: Widgets.BoxElement = this.instance,
-    applyStylesTo: Widgets.BoxElement = this.instance,
+    handleFocusOn: Widgets.BoxElement | BlessedElement = this.instance,
+    applyStylesTo: Widgets.BoxElement | BlessedElement = this.instance,
   ) {
     handleFocusOn.on('focus', () => {
       applyStylesTo.style.border.fg = 'red' as any;
