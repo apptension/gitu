@@ -1,13 +1,10 @@
 import blessed, { Widgets } from 'blessed';
 import { Element, ElementConfig } from './Element';
-import { LogElement } from './LogElement';
 import { TreeElement } from './TreeElement';
 import { Git } from '../services/git';
 
 export class WorktreeElement extends Element {
   readonly #box: Widgets.BoxElement;
-
-  readonly #logBox: LogElement;
 
   readonly #treeBox: TreeElement;
 
@@ -26,17 +23,9 @@ export class WorktreeElement extends Element {
       border: 'line',
       label: 'Worktree',
     });
-    this.#logBox = new LogElement({
-      git,
-      left: 0,
-      top: 1,
-      width: '50%-1',
-      bottom: 0,
-      parent: this.#box,
-    });
     this.#treeBox = new TreeElement({
       git,
-      right: 0,
+      left: 0,
       top: 1,
       width: '50%-1',
       bottom: 0,
@@ -45,17 +34,13 @@ export class WorktreeElement extends Element {
   }
 
   override async init(): Promise<void> {
-    await this.#logBox.init(() => {
-      this.#treeBox.onEnter();
-      this.#box.screen.render();
-    });
     await this.#treeBox.init(() => {
-      this.#logBox.onEnter();
+      // this.#logBox.onEnter();
       this.#box.screen.render();
     });
   }
 
   override async onEnter(): Promise<void> {
-    return this.#logBox.onEnter();
+    return this.#treeBox.onEnter();
   }
 }

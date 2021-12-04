@@ -68,7 +68,9 @@ export class MainMenuElement extends Element {
     }];
 
     items.forEach((item) => {
-      item.element.init();
+      item.element.init().then(() => {
+        item.element.instance.screen.render();
+      });
       this.#listbar.addItem(item.name as any, async () => {
         await onMenuSelect(item.element);
       });

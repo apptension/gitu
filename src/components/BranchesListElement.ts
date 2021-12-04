@@ -2,10 +2,10 @@ import blessed, { Widgets } from 'blessed';
 import { Element, ElementConfig } from './Element';
 import { Git } from '../services/git';
 
-export class LogElement extends Element {
+export class BranchesListElement extends Element {
   readonly #box: Widgets.BoxElement;
 
-  readonly #logsList: Widgets.ListElement;
+  readonly #branchesList: Widgets.ListElement;
 
   readonly #git: Git;
 
@@ -22,7 +22,7 @@ export class LogElement extends Element {
       border: 'line',
       label: 'Log',
     });
-    this.#logsList = blessed.list({
+    this.#branchesList = blessed.list({
       left: 0,
       right: 0,
       top: 0,
@@ -44,18 +44,24 @@ export class LogElement extends Element {
         },
       },
     });
-    this.applyBorderStyleForFocusedElement(this.#logsList, this.#box);
+    this.applyBorderStyleForFocusedElement(this.#branchesList, this.#box);
   }
 
-  override async init(onTab?: () => void): Promise<void> {
-    const log = await this.#git.log();
-    log.all.forEach((logLine) => {
-      this.#logsList.addItem(logLine.message);
+  override async init(onTab?: () => void, onSelect?: (branch: string) => void): Promise<void> {
+    const branches = await this.#git.branches();
+    const currentBranchIndex = branches.all.indexOf(branches.current);
+    branches.all.forEach((branch) => {
+      this.#branchesList.addItem(branch);
     });
-    this.#logsList.key(['tab'], () => onTab?.());
+    this.#branchesList.key(['tab'], () => onTab?.());
+    this.#branchesList.on('select', (_, index) => {
+      onSelect?.(branches.all[index]);
+    });
+    this.#branchesList.select(currentBranchIndex);
+    onSelect?.(branches.current);
   }
 
   override async onEnter(): Promise<void> {
-    this.#logsList.focus();
+    this.#branchesList.focus();
   }
 }

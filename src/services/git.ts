@@ -11,8 +11,12 @@ export class Git {
     });
   }
 
-  async log() {
-    return this.#git.log();
+  async log(branch = 'HEAD') {
+    return this.#git.log([branch]);
+  }
+
+  async branches() {
+    return this.#git.branch();
   }
 
   async stashList() {
