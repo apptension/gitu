@@ -27,6 +27,8 @@ export class StashElement extends Element {
     });
     this.#stashListBox = this.createStashListBox();
     this.#filesModifiedBox = this.createFilesModifiedBox();
+    this.applyBorderStyleForFocusedElement((this.#stashListBox as any).rows, this.#stashListBox);
+    this.applyBorderStyleForFocusedElement((this.#filesModifiedBox as any).rows, this.#filesModifiedBox);
   }
 
   createStashListBox() : contrib.Widgets.TableElement {

@@ -20,4 +20,16 @@ export abstract class Element<T extends Widgets.BoxElement = Widgets.BoxElement>
   async onEnter(): Promise<void> {
     this.instance.focus();
   }
+
+  applyBorderStyleForFocusedElement(
+    handleFocusOn: Widgets.BoxElement = this.instance,
+    applyStylesTo: Widgets.BoxElement = this.instance,
+  ) {
+    handleFocusOn.on('focus', () => {
+      applyStylesTo.style.border.fg = 'red' as any;
+    });
+    handleFocusOn.on('blur', () => {
+      applyStylesTo.style.border.fg = 'white' as any;
+    });
+  }
 }

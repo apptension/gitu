@@ -20,5 +20,6 @@ export class BranchesElement extends Element {
       border: 'line',
       label: 'Branches',
     });
+    this.applyBorderStyleForFocusedElement();
   }
 }

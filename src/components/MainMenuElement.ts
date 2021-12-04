@@ -37,7 +37,10 @@ export class MainMenuElement extends Element {
           fg: 'white',
           bg: 'black',
         },
-      },
+        focus: {
+          bg: 'red',
+        },
+      } as any,
       items: [],
       commands: [],
     });

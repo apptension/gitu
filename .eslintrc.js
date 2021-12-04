@@ -22,5 +22,6 @@ module.exports = {
     'class-methods-use-this': 'off',
     '@typescript-eslint/no-empty-function': 'off',
     'max-len': ["error", { "code": 120 }],
-  }
+    'no-param-reassign': ['error', { 'props': false }],
+  },
 };

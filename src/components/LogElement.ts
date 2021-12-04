@@ -29,6 +29,7 @@ export class LogElement extends Element {
       bottom: 0,
       parent: this.#box,
       keys: true,
+      mouse: true,
       style: {
         item: {
           fg: 'blue',
@@ -43,6 +44,7 @@ export class LogElement extends Element {
         },
       },
     });
+    this.applyBorderStyleForFocusedElement(this.#logsList, this.#box);
   }
 
   override async init(): Promise<void> {

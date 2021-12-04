@@ -20,5 +20,6 @@ export class TreeElement extends Element {
       border: 'line',
       label: 'Tree',
     });
+    this.applyBorderStyleForFocusedElement();
   }
 }

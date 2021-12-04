@@ -23,20 +23,22 @@ export class WorktreeElement extends Element {
     this.#git = git;
     this.#box = blessed.box({
       ...(config ?? {}),
+      border: 'line',
+      label: 'Worktree',
     });
     this.#logBox = new LogElement({
       git,
       left: 0,
-      top: 0,
-      width: '50%',
+      top: 1,
+      width: '50%-1',
       bottom: 0,
       parent: this.#box,
     });
     this.#treeBox = new TreeElement({
       git,
       right: 0,
-      top: 0,
-      width: '50%',
+      top: 1,
+      width: '50%-1',
       bottom: 0,
       parent: this.#box,
     });
