@@ -29,8 +29,19 @@ export class LogElement extends Element {
       bottom: 0,
       parent: this.#box,
       keys: true,
-      mouse: true,
-      interactive: true,
+      style: {
+        item: {
+          fg: 'blue',
+          hover: {
+            fg: 'white',
+            bg: 'black',
+          },
+        },
+        selected: {
+          fg: 'white',
+          bg: 'black',
+        },
+      },
     });
   }
 
@@ -39,6 +50,9 @@ export class LogElement extends Element {
     log.all.forEach((logLine) => {
       this.#logsList.addItem(logLine.message);
     });
+  }
+
+  override async onEnter(): Promise<void> {
     this.#logsList.focus();
   }
 }

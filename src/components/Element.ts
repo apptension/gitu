@@ -14,5 +14,10 @@ export interface ElementConfig {
 
 export abstract class Element<T extends Widgets.BoxElement = Widgets.BoxElement> {
   abstract get instance(): T;
+
   async init(): Promise<void> {}
+
+  async onEnter(): Promise<void> {
+    this.instance.focus();
+  }
 }

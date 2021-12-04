@@ -6,6 +6,10 @@ import { Element, ElementConfig } from './Element';
 export class StashElement extends Element {
   readonly #box: Widgets.BoxElement;
 
+  readonly #stashListBox: contrib.Widgets.TableElement;
+
+  readonly #filesModifiedBox: contrib.Widgets.TableElement;
+
   readonly #git: Git;
 
   get instance() {
@@ -21,6 +25,8 @@ export class StashElement extends Element {
       border: 'line',
       label: 'Stash',
     });
+    this.#stashListBox = this.createStashListBox();
+    this.#filesModifiedBox = this.createFilesModifiedBox();
   }
 
   createStashListBox() : contrib.Widgets.TableElement {
@@ -60,13 +66,11 @@ export class StashElement extends Element {
 
   override async init(): Promise<void> {
     const stashList = await this.#git.stashList();
+    (this.#stashListBox as any).rows.on('select item', this.handleStashSelect(this.#git, this.#filesModifiedBox));
+    this.#stashListBox.setData({ headers: [''], data: stashList.all.map((stashItem) => [stashItem.message]) });
+  }
 
-    const stashListBox = this.createStashListBox();
-    const filesModifiedBox = this.createFilesModifiedBox();
-
-    (stashListBox as any).rows.on('select item', this.handleStashSelect(this.#git, filesModifiedBox));
-
-    stashListBox.setData({ headers: [''], data: stashList.all.map((stashItem) => [stashItem.message]) });
-    stashListBox.focus();
+  override async onEnter(): Promise<void> {
+    this.#stashListBox.focus();
   }
 }

@@ -1,6 +1,6 @@
 import blessed, { Widgets } from 'blessed';
 
-import { createMainMenu } from './components/mainMenu';
+import { MainMenuElement } from './components/MainMenuElement';
 import { Git } from './services/git';
 
 const screen = blessed.screen();
@@ -17,17 +17,26 @@ const wrapper = blessed.box({
   bottom: 0,
 });
 
-const mainMenu = createMainMenu(wrapper, git, async (element) => {
+const mainMenu = new MainMenuElement({
+  git,
+  parent: wrapper,
+  top: 0,
+  left: 0,
+  right: 0,
+  height: 1,
+}, async (element) => {
   currentElement?.detach();
   currentElement = element.instance;
   wrapper.append(currentElement);
-  await element.init();
+  await element.onEnter();
   screen.render();
 });
 
 screen.key(['q', 'C-c'], () => process.exit(0));
 screen.key(['escape'], () => {
-  mainMenu.focus();
+  mainMenu.instance.focus();
 });
 
-screen.render();
+mainMenu.init().then(() => {
+  screen.render();
+});
