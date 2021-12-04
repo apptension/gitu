@@ -51,7 +51,11 @@ export class BranchesListElement extends Element {
     const branches = await this.#git.branches();
     const currentBranchIndex = branches.all.indexOf(branches.current);
     branches.all.forEach((branch) => {
-      this.#branchesList.addItem(branch);
+      let name = branch;
+      if (branch === branches.current && branches.detached) {
+        name = `${branch} (detached)`;
+      }
+      this.#branchesList.addItem(name);
     });
     this.#branchesList.key(['tab'], () => onTab?.());
     this.#branchesList.on('select', (_, index) => {
