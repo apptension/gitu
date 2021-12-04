@@ -1,18 +1,21 @@
 import blessed, { Widgets } from 'blessed';
 import contrib from 'blessed-contrib';
 import { Git } from '../services/git';
-import { Box, BoxConfig } from './Box';
+import { Element, ElementConfig } from './Element';
 
-export class StashBox implements Box {
-  #box: Widgets.BoxElement | null = null;
+export class StashElement extends Element {
+  readonly #box: Widgets.BoxElement;
 
-  #screen: Widgets.Screen | null | undefined = null;
+  readonly #git: Git;
 
   get instance() {
     return this.#box;
   }
 
-  build(config: BoxConfig) {
+  constructor({ git, ...config }: ElementConfig) {
+    super();
+
+    this.#git = git;
     this.#box = blessed.box({
       ...(config ?? {}),
       border: 'line',
@@ -55,14 +58,13 @@ export class StashBox implements Box {
     };
   }
 
-  async postInit() {
-    const git = new Git();
-    const stashList = await git.stashList();
+  override async init(): Promise<void> {
+    const stashList = await this.#git.stashList();
 
     const stashListBox = this.createStashListBox();
     const filesModifiedBox = this.createFilesModifiedBox();
 
-    (stashListBox as any).rows.on('select item', this.handleStashSelect(git, filesModifiedBox));
+    (stashListBox as any).rows.on('select item', this.handleStashSelect(this.#git, filesModifiedBox));
 
     stashListBox.setData({ headers: [''], data: stashList.all.map((stashItem) => [stashItem.message]) });
     stashListBox.focus();

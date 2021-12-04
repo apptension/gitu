@@ -1,6 +1,7 @@
 import { Widgets } from 'blessed';
+import { Git } from '../services/git';
 
-export interface BoxConfig {
+export interface ElementConfig {
   left?: Widgets.Types.TTopLeft;
   right?: Widgets.Types.TPosition;
   top?: Widgets.Types.TTopLeft;
@@ -8,10 +9,10 @@ export interface BoxConfig {
   width?: Widgets.Types.TPosition;
   height?: Widgets.Types.TPosition;
   parent?: Widgets.Node;
+  git: Git;
 }
 
-export interface Box {
-  get instance(): Widgets.BoxElement | null;
-  postInit?(): Promise<void>
-  build(config?: BoxConfig): void;
+export abstract class Element<T extends Widgets.BoxElement = Widgets.BoxElement> {
+  abstract get instance(): T;
+  async init(): Promise<void> {}
 }

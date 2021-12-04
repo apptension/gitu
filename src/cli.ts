@@ -1,11 +1,13 @@
 import blessed, { Widgets } from 'blessed';
 
 import { createMainMenu } from './components/mainMenu';
-import BoxElement = Widgets.BoxElement;
+import { Git } from './services/git';
 
 const screen = blessed.screen();
 
-let currentBox: BoxElement | null = null;
+const git: Git = new Git();
+
+let currentElement: Widgets.BoxElement | null = null;
 
 const wrapper = blessed.box({
   parent: screen,
@@ -15,17 +17,11 @@ const wrapper = blessed.box({
   bottom: 0,
 });
 
-const mainMenu = createMainMenu(wrapper, async (box) => {
-  currentBox?.detach();
-  box.build({
-    left: 0, top: 1, right: 0, bottom: 0,
-  });
-  currentBox = box.instance;
-  if (currentBox) {
-    currentBox.focus();
-    wrapper.append(currentBox);
-  }
-  await box.postInit?.();
+const mainMenu = createMainMenu(wrapper, git, async (element) => {
+  currentElement?.detach();
+  currentElement = element.instance;
+  wrapper.append(currentElement);
+  await element.init();
   screen.render();
 });
 

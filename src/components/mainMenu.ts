@@ -1,12 +1,13 @@
 import blessed, { Widgets } from 'blessed';
-import { Box } from './Box';
-import { WorktreeBox } from './worktreeBox';
-import { BranchesBox } from './branchesBox';
-import { StashBox } from './stashBox';
+import { Element, ElementConfig } from './Element';
+import { WorktreeElement } from './WorktreeElement';
+import { BranchesElement } from './BranchesElement';
+import { StashElement } from './StashElement';
+import { Git } from '../services/git';
 
-type SwitchBoxCallback = (boxClass: Box) => Promise<void>;
+type MenuSelectCallback = (selectedElement: Element) => Promise<void>;
 
-export const createMainMenu = (wrapper: Widgets.BoxElement, switchBoxes: SwitchBoxCallback) => {
+export const createMainMenu = (wrapper: Widgets.BoxElement, git: Git, onMenuSelect: MenuSelectCallback) => {
   const mainMenu = blessed.listbar({
     parent: wrapper,
     top: 0,
@@ -34,20 +35,28 @@ export const createMainMenu = (wrapper: Widgets.BoxElement, switchBoxes: SwitchB
   });
   mainMenu.focus();
 
+  const elementsConfig: ElementConfig = {
+    git,
+    left: 0,
+    right: 0,
+    top: 1,
+    bottom: 0,
+  };
+
   const items = [{
     name: 'Worktree',
-    Box: WorktreeBox,
+    element: new WorktreeElement(elementsConfig),
   }, {
     name: 'Branches',
-    Box: BranchesBox,
+    element: new BranchesElement(elementsConfig),
   }, {
     name: 'Stash',
-    Box: StashBox,
+    element: new StashElement(elementsConfig),
   }];
 
   items.forEach((item) => {
-    mainMenu.addItem(item.name as any, () => {
-      switchBoxes(new item.Box());
+    mainMenu.addItem(item.name as any, async () => {
+      await onMenuSelect(item.element);
     });
   });
 

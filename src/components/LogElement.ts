@@ -1,21 +1,24 @@
 import blessed, { Widgets } from 'blessed';
-import { Box, BoxConfig } from './Box';
+import { Element, ElementConfig } from './Element';
 import { Git } from '../services/git';
 
-export class LogBox implements Box {
-  #box: Widgets.BoxElement | null = null;
+export class LogElement extends Element {
+  readonly #box: Widgets.BoxElement;
 
-  #logsList: Widgets.ListElement | null = null;
+  readonly #logsList: Widgets.ListElement;
 
-  #git: Git | null = null;
+  readonly #git: Git;
 
   get instance() {
     return this.#box;
   }
 
-  build(config: BoxConfig) {
+  constructor({ git, ...config }: ElementConfig) {
+    super();
+
+    this.#git = git;
     this.#box = blessed.box({
-      ...(config ?? {}),
+      ...config,
       border: 'line',
       label: 'Log',
     });
@@ -29,14 +32,13 @@ export class LogBox implements Box {
       mouse: true,
       interactive: true,
     });
-    this.#git = new Git();
   }
 
-  async postInit(): Promise<void> {
-    const log = await this.#git!.log();
+  override async init(): Promise<void> {
+    const log = await this.#git.log();
     log.all.forEach((logLine) => {
-      this.#logsList!.addItem(logLine.message);
+      this.#logsList.addItem(logLine.message);
     });
-    this.#logsList!.focus();
+    this.#logsList.focus();
   }
 }
