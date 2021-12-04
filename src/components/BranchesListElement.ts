@@ -20,7 +20,7 @@ export class BranchesListElement extends Element {
     this.#box = blessed.box({
       ...config,
       border: 'line',
-      label: 'Log',
+      label: 'Branches',
     });
     this.#branchesList = blessed.list({
       left: 0,
