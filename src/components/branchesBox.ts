@@ -1,7 +1,7 @@
 import blessed from 'blessed';
 import { BlockCreator } from './types';
 
-export const createBranchesBox: BlockCreator = () => {
+export const createBranchesBox: BlockCreator = async () => {
   return blessed.box({
     left: 0,
     right: 0,
