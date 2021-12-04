@@ -4,7 +4,7 @@ import { WorktreeBox } from './worktreeBox';
 import { BranchesBox } from './branchesBox';
 import { StashBox } from './stashBox';
 
-type SwitchBoxCallback = (boxClass: { new(...args: any[]): Box }) => Promise<void>;
+type SwitchBoxCallback = (boxClass: Box) => Promise<void>;
 
 export const createMainMenu = (wrapper: Widgets.BoxElement, switchBoxes: SwitchBoxCallback) => {
   const mainMenu = blessed.listbar({
@@ -36,18 +36,18 @@ export const createMainMenu = (wrapper: Widgets.BoxElement, switchBoxes: SwitchB
 
   const items = [{
     name: 'Worktree',
-    box: WorktreeBox,
+    Box: WorktreeBox,
   }, {
     name: 'Branches',
-    box: BranchesBox,
+    Box: BranchesBox,
   }, {
     name: 'Stash',
-    box: StashBox,
+    Box: StashBox,
   }];
 
   items.forEach((item) => {
     mainMenu.addItem(item.name as any, () => {
-      switchBoxes(item.box);
+      switchBoxes(new item.Box());
     });
   });
 

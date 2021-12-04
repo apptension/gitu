@@ -1,9 +1,8 @@
 import blessed, { Widgets } from 'blessed';
-import { Git } from '../services/git';
 import { Box } from './Box';
 import BoxOptions = Widgets.BoxOptions;
 
-export class StashBox implements Box {
+export class LogBox implements Box {
   #box: Widgets.BoxElement | null = null;
 
   get instance() {
@@ -14,13 +13,7 @@ export class StashBox implements Box {
     this.#box = blessed.box({
       ...(config ?? {}),
       border: 'line',
-      label: 'Stash',
+      label: 'Log',
     });
-  }
-
-  async postInit() {
-    const git = new Git();
-    const stashList = await git.stashList();
-    console.log(stashList);
   }
 }

@@ -1,14 +1,17 @@
 import blessed, { Widgets } from 'blessed';
-import { Position } from './types';
 import { Box } from './Box';
+import BoxOptions = Widgets.BoxOptions;
 
-export class BranchesBox extends Box {
-  build(position?: Position): Widgets.BoxElement {
-    return blessed.box({
-      left: position?.left,
-      right: position?.right,
-      top: position?.top,
-      bottom: position?.bottom,
+export class BranchesBox implements Box {
+  #box: Widgets.BoxElement | null = null;
+
+  get instance() {
+    return this.#box;
+  }
+
+  build(config: BoxOptions) {
+    this.#box = blessed.box({
+      ...(config ?? {}),
       border: 'line',
       label: 'Branches',
     });

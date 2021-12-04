@@ -15,15 +15,17 @@ const wrapper = blessed.box({
   bottom: 0,
 });
 
-const mainMenu = createMainMenu(wrapper, async (BoxClass) => {
+const mainMenu = createMainMenu(wrapper, async (box) => {
   currentBox?.detach();
-  const box = new BoxClass({
+  box.build({
     left: 0, top: 1, right: 0, bottom: 0,
   });
   currentBox = box.instance;
-  currentBox.focus();
-  wrapper.append(currentBox);
-  await box.postInit();
+  if (currentBox) {
+    currentBox.focus();
+    wrapper.append(currentBox);
+  }
+  await box.postInit?.();
   screen.render();
 });
 
