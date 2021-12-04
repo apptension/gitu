@@ -1,4 +1,5 @@
 import simpleGit, { SimpleGit } from 'simple-git';
+import {parseDiffResult} from "simple-git/src/lib/parsers/parse-diff-summary";
 
 export class Git {
   #git: SimpleGit;
@@ -39,10 +40,30 @@ export class Git {
     return files;
   }
 
+  async getStashDiff(index: number) {
+    const result = await this.#git.raw('stash', 'show', `stash@{${index}}`, '-p');
+    const lines = result.split('\n');
+    let finalDiff = '';
+    lines.forEach((line) => {
+      if (line.startsWith('+')) {
+        finalDiff += `{green-fg}${line}{/}\n`;
+      } else if (line.startsWith('-')) {
+        finalDiff += `{red-fg}${line}{/}\n`;
+      } else {
+        finalDiff += `${line}\n`;
+      }
+    });
+    return finalDiff;
+  }
+
   async renameStash(index: number, newName: string) {
     const dropResult = await this.#git.raw('stash', 'drop', `stash@{${index}}`);
     const match = dropResult.match(/\(([0-9a-f]*)\)/m);
     const stashSha = match?.[1];
     await this.#git.raw('stash', 'store', '-m', `${newName}`, `${stashSha}`);
+  }
+
+  async dropStash(index: number) {
+    await this.#git.raw('stash', 'drop', `stash@{${index}}`);
   }
 }
