@@ -75,7 +75,11 @@ export class StashElement extends Element {
   }
 
   async applyStashHandler() {
-    console.error('Not implemented yet.');
+    if (this.#selectedStashIndex != null) {
+      await this.#git.applyStash(this.#selectedStashIndex);
+      this.#popup.hide();
+      this.#screen.render();
+    }
   }
 
   async dropStashHandler() {

@@ -94,6 +94,10 @@ export class Git {
     await this.#git.raw('stash', 'drop', `stash@{${index}}`);
   }
 
+  async applyStash(index: number) {
+    await this.#git.raw('stash', 'apply', `stash@{${index}}`);
+  }
+
   async getTrackedFiles(): Promise<string[]> {
     const lsFilesResponse = await this.#git.raw('ls-files');
     return lsFilesResponse.split('\n').filter((file) => file);
