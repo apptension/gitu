@@ -29,6 +29,7 @@ export interface WorkTreeItem {
   type: WorkTreeItemType;
   indexStatus: WorkTreeItemStatus;
   workdirStatus: WorkTreeItemStatus;
+  styleTags: string[];
 }
 
 export class WorkTree {
@@ -49,6 +50,7 @@ export class WorkTree {
     type: WorkTreeItemType.UPPER,
     indexStatus: WorkTreeItemStatus.NONE,
     workdirStatus: WorkTreeItemStatus.NONE,
+    styleTags: [],
   };
 
   constructor(git: Git) {
@@ -78,6 +80,7 @@ export class WorkTree {
       type: file.isDirectory() ? WorkTreeItemType.DIRECTORY : WorkTreeItemType.FILE,
       indexStatus: WorkTreeItemStatus.NONE,
       workdirStatus: WorkTreeItemStatus.NONE,
+      styleTags: [],
     }));
   }
 
@@ -102,6 +105,7 @@ export class WorkTree {
           type: segments.length > 1 ? WorkTreeItemType.DIRECTORY : WorkTreeItemType.FILE,
           indexStatus: WorkTreeItemStatus.NONE,
           workdirStatus: WorkTreeItemStatus.NONE,
+          styleTags: [],
         },
       };
     }, {} as { [key: string]: WorkTreeItem });
@@ -140,6 +144,7 @@ export class WorkTree {
           mapped.workdirStatus = isCurrentPathTracked ? WorkTreeItemStatus.UNMODIFIED : WorkTreeItemStatus.IGNORED;
         } else if (!isCurrentPathTracked) {
           mapped.workdirStatus = WorkTreeItemStatus.UNTRACKED;
+          mapped.styleTags = ['bold', 'red-fg'];
         } else {
           // eslint-disable-next-line default-case
           switch (status.working_dir) {
@@ -168,8 +173,29 @@ export class WorkTree {
               mapped.indexStatus = WorkTreeItemStatus.ADDED;
               break;
           }
+          if (mapped.indexStatus !== WorkTreeItemStatus.NONE && mapped.workdirStatus !== WorkTreeItemStatus.NONE) {
+            mapped.styleTags = ['bold', 'yellow-fg'];
+          } else if (mapped.indexStatus !== WorkTreeItemStatus.NONE) {
+            mapped.styleTags = ['bold', 'green-fg'];
+          } else if (mapped.workdirStatus !== WorkTreeItemStatus.NONE) {
+            if (mapped.workdirStatus === WorkTreeItemStatus.CONFLICTED) {
+              mapped.styleTags = ['bold', 'black-fg', 'red-bg'];
+            } else {
+              mapped.styleTags = ['bold', 'red-fg'];
+            }
+          }
         }
 
+        return mapped;
+      }
+      if (file.type === WorkTreeItemType.DIRECTORY) {
+        const mapped = { ...file };
+        const fullRelativePath = this.getFullRelativePathToFile(file.name);
+        const hasChangesInside = this.#gitStatus.files
+          .some((statusFile) => statusFile.path.startsWith(`${fullRelativePath}${sep}`));
+        if (hasChangesInside) {
+          mapped.styleTags = ['bold', 'yellow-fg'];
+        }
         return mapped;
       }
       return file;
@@ -219,5 +245,9 @@ export class WorkTree {
       default:
         return '';
     }
+  }
+
+  static applyStyleTags(text: string, tags: string[]): string {
+    return tags.reduce((applied, tag) => `{${tag}}${applied}{/}\n`, text);
   }
 }

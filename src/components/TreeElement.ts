@@ -43,10 +43,16 @@ export class TreeElement extends Element {
       parent: this.#box,
       keys: true,
       mouse: true,
-      style: DefaultTheme.listStyle,
       columnSpacing: 2,
       columnWidth: [1, 1, 80],
     });
+    this.#rows.style = {
+      ...DefaultTheme.listStyle,
+      item: {
+        ...DefaultTheme.listStyle.item,
+        fg: 'white',
+      },
+    };
     this.applyBorderStyleForFocusedElement(this.#rows, this.#box);
   }
 
@@ -101,11 +107,14 @@ export class TreeElement extends Element {
     this.#currentItems = await this.#worktree.getDataForCurrentPath();
     this.#treeTable.setData({
       headers: [],
-      data: this.#currentItems.map((item) => [
-        WorkTree.convertStatusToText(item.indexStatus),
-        WorkTree.convertStatusToText(item.workdirStatus),
-        item.type === WorkTreeItemType.FILE ? item.name : `» ${item.name}`,
-      ]),
+      data: this.#currentItems.map((item) => {
+        const nameWithTags = WorkTree.applyStyleTags(item.name, item.styleTags);
+        return [
+          WorkTree.convertStatusToText(item.indexStatus),
+          WorkTree.convertStatusToText(item.workdirStatus),
+          item.type === WorkTreeItemType.FILE ? nameWithTags : `» ${nameWithTags}`,
+        ];
+      }),
     });
     this.#treeTable.setContent('');
     this.#rows.top = 0;
