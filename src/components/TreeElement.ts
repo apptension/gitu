@@ -3,6 +3,7 @@ import contrib, { Widgets as ContribWidgets } from 'blessed-contrib';
 import { Element, ElementConfig } from './Element';
 import { Git } from '../services/git';
 import { WorkTree, WorkTreeItem, WorkTreeItemType } from '../services/worktree';
+import { DefaultTheme } from '../themes/default';
 
 export class TreeElement extends Element {
   readonly #box: Widgets.BoxElement;
@@ -37,19 +38,7 @@ export class TreeElement extends Element {
       parent: this.#box,
       keys: true,
       mouse: true,
-      style: {
-        item: {
-          fg: 'blue',
-          hover: {
-            fg: 'white',
-            bg: 'black',
-          },
-        },
-        selected: {
-          fg: 'white',
-          bg: 'black',
-        },
-      },
+      style: DefaultTheme.listStyle,
       columnSpacing: 2,
       columnWidth: [1, 1, 80],
     });

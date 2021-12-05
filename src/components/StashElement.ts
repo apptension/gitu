@@ -44,8 +44,8 @@ export class StashElement extends Element {
     });
     this.#screen = this.#box.screen;
 
-    this.#stashListBox.rows.key(['tab'], () => { this.#filesModifiedBox.focus(); this.#screen.render(); });
-    this.#filesModifiedBox.rows.key(['tab'], () => { this.#diffBox.focus(); this.#screen.render(); });
+    this.#stashListBox.instance.key(['tab'], () => { this.#filesModifiedBox.focus(); this.#screen.render(); });
+    this.#filesModifiedBox.instance.key(['tab'], () => { this.#diffBox.focus(); this.#screen.render(); });
     this.#diffBox.instance.key(['tab'], () => { this.#stashListBox.focus(); this.#screen.render(); });
   }
 
@@ -110,8 +110,8 @@ export class StashElement extends Element {
   }
 
   override async init(): Promise<void> {
-    this.#stashListBox.rows.on('select item', this.handleStashSelect());
-    this.#stashListBox.rows.on('select', this.handleStashEnter());
+    this.#stashListBox.instance.on('select item', this.handleStashSelect());
+    this.#stashListBox.instance.on('select', this.handleStashEnter());
     await this.reloadStashes();
   }
 

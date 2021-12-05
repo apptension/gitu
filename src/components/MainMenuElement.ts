@@ -6,6 +6,7 @@ import { StashElement } from './StashElement';
 import { Git } from '../services/git';
 import ListbarOptions = Widgets.ListbarOptions;
 import { ChangelogElement } from './ChangelogElement';
+import { DefaultTheme } from '../themes/default';
 
 type MenuSelectCallback = (selectedElement: Element) => Promise<void>;
 
@@ -28,17 +29,7 @@ export class MainMenuElement extends Element {
       mouse: true,
       autoCommandKeys: true,
       style: {
-        item: {
-          fg: 'blue',
-          hover: {
-            fg: 'white',
-            bg: 'black',
-          },
-        },
-        selected: {
-          fg: 'white',
-          bg: 'black',
-        },
+        ...DefaultTheme.listStyle,
         focus: {
           bg: 'red',
         },

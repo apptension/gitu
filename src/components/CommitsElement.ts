@@ -2,6 +2,7 @@ import blessed, { Widgets } from 'blessed';
 import { DefaultLogFields, LogResult } from 'simple-git';
 import { Element, ElementConfig } from './Element';
 import { Git } from '../services/git';
+import { DefaultTheme } from '../themes/default';
 
 export class CommitsElement extends Element {
   readonly #box: Widgets.BoxElement;
@@ -37,19 +38,7 @@ export class CommitsElement extends Element {
       parent: this.#box,
       keys: true,
       mouse: true,
-      style: {
-        item: {
-          fg: 'blue',
-          hover: {
-            fg: 'white',
-            bg: 'black',
-          },
-        },
-        selected: {
-          fg: 'white',
-          bg: 'black',
-        },
-      },
+      style: DefaultTheme.listStyle,
     });
     this.applyBorderStyleForFocusedElement(this.#logsList, this.#box);
   }

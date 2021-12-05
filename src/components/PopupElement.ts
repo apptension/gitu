@@ -1,9 +1,9 @@
 import blessed, { Widgets } from 'blessed';
-import contrib from 'blessed-contrib';
 import { Element, ElementConfig } from './Element';
 import { Git } from '../services/git';
 import BoxElement = Widgets.BoxElement;
 import BlessedElement = Widgets.BlessedElement;
+import { DefaultTheme } from '../themes/default';
 
 export class PopupElement extends Element {
   readonly #box: Widgets.TextElement;
@@ -68,20 +68,22 @@ export class PopupElement extends Element {
   }
 
   renderMenu(options: string[], handlers: any[]) {
-    const menuBox = contrib.table({
+    const menuBox = blessed.list({
       keys: true,
-      columnWidth: [1000],
       top: 0,
       left: 0,
       right: 0,
       bottom: 0,
-      data: { headers: [''], data: options.map((option) => [option]) },
+      style: DefaultTheme.menuListStyle,
+    });
+    options.forEach((option) => {
+      menuBox.addItem(option);
     });
     this.addChild(menuBox);
-    (menuBox as any).rows.on('select', (item: any, index: number) => {
+    menuBox.on('select', (item: any, index: number) => {
       handlers[index]();
     });
-    (menuBox as any).rows.key('escape', () => { this.detachChild(menuBox); });
+    menuBox.key('escape', () => { this.detachChild(menuBox); });
   }
 
   renderTextInput(label: string, submitHandler: any) {

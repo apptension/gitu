@@ -1,6 +1,7 @@
 import blessed, { Widgets } from 'blessed';
 import { Element, ElementConfig } from './Element';
 import { Git } from '../services/git';
+import { DefaultTheme } from '../themes/default';
 
 export class BranchesListElement extends Element {
   readonly #box: Widgets.BoxElement;
@@ -35,19 +36,7 @@ export class BranchesListElement extends Element {
       parent: this.#box,
       keys: true,
       mouse: true,
-      style: {
-        item: {
-          fg: 'blue',
-          hover: {
-            fg: 'white',
-            bg: 'black',
-          },
-        },
-        selected: {
-          fg: 'white',
-          bg: 'black',
-        },
-      },
+      style: DefaultTheme.listStyle,
     });
     this.applyBorderStyleForFocusedElement(this.#branchesList, this.#box);
   }

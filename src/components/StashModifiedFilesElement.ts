@@ -1,9 +1,9 @@
-import contrib from 'blessed-contrib';
+import blessed, { Widgets } from 'blessed';
 import { Element, ElementConfig } from './Element';
 import { Git } from '../services/git';
 
 export class StashModifiedFilesElement extends Element {
-  readonly #box: contrib.Widgets.TableElement;
+  readonly #box: Widgets.ListElement;
 
   readonly #git: Git;
 
@@ -11,23 +11,21 @@ export class StashModifiedFilesElement extends Element {
     return this.#box;
   }
 
-  get rows() {
-    return (this.#box as any).rows;
-  }
-
   setData(files: string[]) {
-    this.#box.setData({ headers: [''], data: files.map((file) => [file]) });
-    (this.#box as any).rows.selected = 0;
+    this.#box.clearItems();
+    files.forEach((file) => {
+      this.#box.addItem(file);
+    });
+    this.#box.select(0);
   }
 
   constructor({ git, ...config } : ElementConfig) {
     super();
     this.#git = git;
-    this.#box = contrib.table({
+    this.#box = blessed.list({
       parent: config.parent,
       top: 1,
-      columnWidth: [1000],
-      border: { type: 'line' },
+      border: 'line',
       keys: true,
       mouse: true,
       left: '30%',
@@ -35,6 +33,6 @@ export class StashModifiedFilesElement extends Element {
       width: '70%',
       label: 'Modified files',
     });
-    this.applyBorderStyleForFocusedElement((this.#box as any).rows, this.#box);
+    this.applyBorderStyleForFocusedElement(this.#box, this.#box);
   }
 }

@@ -1,10 +1,11 @@
-import contrib from 'blessed-contrib';
 import { DefaultLogFields, ListLogLine } from 'simple-git';
+import blessed, { Widgets } from 'blessed';
 import { Element, ElementConfig } from './Element';
 import { Git } from '../services/git';
+import { DefaultTheme } from '../themes/default';
 
 export class StashListElement extends Element {
-  readonly #box: contrib.Widgets.TableElement;
+  readonly #box: Widgets.ListElement;
 
   readonly #git: Git;
 
@@ -14,10 +15,6 @@ export class StashListElement extends Element {
     return this.#box;
   }
 
-  get rows() {
-    return (this.#box as any).rows;
-  }
-
   get stashes() {
     return this.#stashes;
   }
@@ -25,25 +22,28 @@ export class StashListElement extends Element {
   async reload() {
     const stashList = await this.#git.stashList();
     this.#stashes = stashList.all;
-    this.#box.setData({ headers: [''], data: this.#stashes.map((stashItem) => [stashItem.message]) });
-    this.rows.selected = 0;
+    this.#box.clearItems();
+    this.#stashes.forEach((stashItem) => {
+      this.#box.addItem(stashItem.message);
+    });
+    this.#box.select(0);
   }
 
   constructor({ git, ...config } : ElementConfig) {
     super();
     this.#git = git;
-    this.#box = contrib.table({
+    this.#box = blessed.list({
       parent: config.parent,
       top: 1,
       bottom: 0,
       width: '30%',
-      columnWidth: [1000],
+      style: DefaultTheme.listStyle,
       label: 'Stashes',
-      border: { type: 'line' },
+      border: 'line',
       keys: true,
       mouse: true,
     });
     this.#stashes = [];
-    this.applyBorderStyleForFocusedElement((this.#box as any).rows, this.#box);
+    this.applyBorderStyleForFocusedElement(this.#box, this.#box);
   }
 }
