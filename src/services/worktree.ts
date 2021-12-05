@@ -1,10 +1,12 @@
 import { readdir } from 'fs/promises';
+import { resolve, relative, isAbsolute } from 'path';
 
 import { Git } from './git';
 
-enum WorkTreeItemType {
+export enum WorkTreeItemType {
   FILE,
   DIRECTORY,
+  UPPER,
 }
 
 export interface WorkTreeItem {
@@ -17,6 +19,15 @@ export class WorkTree {
 
   #trackedFiles: string[] = [];
 
+  #rootPath: string = resolve('.');
+
+  #currentPath: string = '';
+
+  readonly #upperFolderItem: WorkTreeItem = {
+    name: '..',
+    type: WorkTreeItemType.UPPER
+  };
+
   constructor(git: Git) {
     this.#git = git;
   }
@@ -25,11 +36,12 @@ export class WorkTree {
     this.#trackedFiles = await this.#git.getTrackedFiles();
   }
 
-  async getFor(path: string): Promise<WorkTreeItem[]> {
-    const result = await readdir(path, {
+  async getDataForCurrentPath(): Promise<WorkTreeItem[]> {
+    const currentPath = resolve(this.#rootPath, this.#currentPath);
+    const result = await readdir(currentPath, {
       withFileTypes: true,
     });
-    return result.map((file) => ({
+    const tree = result.map((file) => ({
       name: file.name,
       type: file.isDirectory() ? WorkTreeItemType.DIRECTORY : WorkTreeItemType.FILE,
     })).sort((fileA, fileB) => {
@@ -41,5 +53,20 @@ export class WorkTree {
       }
       return fileA.name.localeCompare(fileB.name);
     });
+    return this.#currentPath ? [this.#upperFolderItem, ...tree] : tree;
+  }
+
+  enterFolder(path: string) {
+    const newPath = resolve(this.#rootPath, this.#currentPath, path);
+    this.#currentPath = WorkTree.#calculateRelativePathSecured(this.#rootPath, newPath);
+  }
+
+  static #calculateRelativePathSecured(from: string, to: string) {
+    const relativePath = relative(from, to);
+    if (relativePath && !relativePath.startsWith('..') && !isAbsolute(relativePath)) {
+      return relativePath;
+    }
+
+    return '';
   }
 }

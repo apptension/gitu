@@ -47,7 +47,10 @@ export class BranchesListElement extends Element {
     this.applyBorderStyleForFocusedElement(this.#branchesList, this.#box);
   }
 
-  override async init(onTab?: () => void, onSelect?: (branch: string) => void): Promise<void> {
+  override async init(
+    onTab?: () => void,
+    onSelect?: (branch: string, isInitial: boolean) => void,
+  ): Promise<void> {
     const branches = await this.#git.branches();
     const currentBranchIndex = branches.all.indexOf(branches.current);
     branches.all.forEach((branch) => {
@@ -59,10 +62,10 @@ export class BranchesListElement extends Element {
     });
     this.#branchesList.key(['tab'], () => onTab?.());
     this.#branchesList.on('select', (_, index) => {
-      onSelect?.(branches.all[index]);
+      onSelect?.(branches.all[index], false);
     });
     this.#branchesList.select(currentBranchIndex);
-    onSelect?.(branches.current);
+    onSelect?.(branches.current, true);
   }
 
   override async onEnter(): Promise<void> {

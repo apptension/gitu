@@ -30,7 +30,7 @@ export class BranchesElement extends Element {
       git,
       left: 0,
       top: 1,
-      width: '50%-1',
+      width: '30%',
       bottom: 0,
       parent: this.#box,
     });
@@ -38,7 +38,7 @@ export class BranchesElement extends Element {
       git,
       right: 0,
       top: 1,
-      width: '50%-1',
+      width: '70%-1',
       bottom: 0,
       parent: this.#box,
     });
@@ -53,9 +53,11 @@ export class BranchesElement extends Element {
     await this.#branchesBox.init(() => {
       this.#commitsBox.onEnter();
       this.#box.screen.render();
-    }, async (branch) => {
+    }, async (branch, isInitial) => {
       await this.#commitsBox.switchBranch(branch);
-      this.#commitsBox.onEnter();
+      if (!isInitial) {
+        await this.#commitsBox.onEnter();
+      }
       this.#box.screen.render();
     });
   }

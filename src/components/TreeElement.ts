@@ -1,7 +1,7 @@
 import blessed, { Widgets } from 'blessed';
 import { Element, ElementConfig } from './Element';
 import { Git } from '../services/git';
-import { WorkTree } from '../services/worktree';
+import { WorkTree, WorkTreeItem, WorkTreeItemType } from '../services/worktree';
 
 export class TreeElement extends Element {
   readonly #box: Widgets.BoxElement;
@@ -11,6 +11,8 @@ export class TreeElement extends Element {
   readonly #git: Git;
 
   readonly #worktree: WorkTree;
+
+  #currentItems: WorkTreeItem[] = [];
 
   get instance() {
     return this.#box;
@@ -53,14 +55,28 @@ export class TreeElement extends Element {
 
   override async init(onTab?: () => void): Promise<void> {
     await this.#worktree.init();
-    const items = await this.#worktree.getFor('.');
-    items.forEach((item) => {
-      this.#treeList.addItem(item.name);
-    });
+    await this.loadData();
     this.#treeList.key(['tab'], () => onTab?.());
+    this.#treeList.on('select', async (_, index) => {
+      if (this.#currentItems[index]) {
+        if (this.#currentItems[index].type !== WorkTreeItemType.FILE) {
+          this.#worktree.enterFolder(this.#currentItems[index].name);
+          await this.loadData();
+          this.#box.screen.render();
+        }
+      }
+    });
   }
 
   override async onEnter(): Promise<void> {
     this.#treeList.focus();
+  }
+
+  async loadData() {
+    this.#currentItems = await this.#worktree.getDataForCurrentPath();
+    this.#treeList.clearItems();
+    this.#currentItems.forEach((item) => {
+      this.#treeList.addItem(item.name);
+    });
   }
 }

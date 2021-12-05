@@ -27,7 +27,7 @@ export class WorktreeElement extends Element {
       git,
       left: 0,
       top: 1,
-      width: '50%-1',
+      width: '30%',
       bottom: 0,
       parent: this.#box,
     });
