@@ -10,6 +10,8 @@ export class WorktreeElement extends Element {
 
   readonly #git: Git;
 
+  #currentBranchName = '';
+
   get instance() {
     return this.#box;
   }
@@ -38,6 +40,8 @@ export class WorktreeElement extends Element {
       // this.#logBox.onEnter();
       this.#box.screen.render();
     });
+    this.#currentBranchName = await this.#git.currentBranchName();
+    this.#box.setLabel(`Worktree - ${this.#currentBranchName}`);
   }
 
   override async onEnter(): Promise<void> {

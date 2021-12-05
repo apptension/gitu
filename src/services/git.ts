@@ -1,4 +1,4 @@
-import simpleGit, { SimpleGit } from 'simple-git';
+import simpleGit, { BranchSummary, LogResult, SimpleGit } from 'simple-git';
 
 export class Git {
   #git: SimpleGit;
@@ -11,7 +11,7 @@ export class Git {
     });
   }
 
-  async log(branch = 'HEAD') {
+  async log(branch = 'HEAD'): Promise<LogResult> {
     return this.#git.log([branch]);
   }
 
@@ -19,8 +19,13 @@ export class Git {
     return this.#git.log({ from: source, to: target });
   }
 
-  async branches() {
+  async branches(): Promise<BranchSummary> {
     return this.#git.branch();
+  }
+
+  async currentBranchName(): Promise<string> {
+    const branches = await this.branches();
+    return branches.current;
   }
 
   async stashList() {

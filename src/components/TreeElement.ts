@@ -63,8 +63,16 @@ export class TreeElement extends Element {
     this.#rows.on('select', async (_, index) => {
       if (this.#currentItems[index]) {
         if (this.#currentItems[index].type !== WorkTreeItemType.FILE) {
-          this.#worktree.enterFolder(this.#currentItems[index].name);
+          const newFolderName = this.#currentItems[index].name;
+          const currentFolderName = this.#worktree.getCurrentFolderName();
+          this.#worktree.enterFolder(newFolderName);
           await this.loadData();
+          if (newFolderName === WorkTree.UPPER_FOLDER_NAME) {
+            this.#rows.select(this.#currentItems.findIndex((item) => item.name === currentFolderName));
+          } else {
+            this.#rows.select(0);
+          }
+
           this.#box.screen.render();
         }
       }
@@ -91,6 +99,6 @@ export class TreeElement extends Element {
     });
     this.#treeTable.setContent('');
     this.#rows.top = 0;
-    this.#box.screen.render();
+    this.#rows.select(0);
   }
 }

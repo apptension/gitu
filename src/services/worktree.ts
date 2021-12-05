@@ -32,6 +32,8 @@ export interface WorkTreeItem {
 }
 
 export class WorkTree {
+  static readonly UPPER_FOLDER_NAME = '..';
+
   #git: Git;
 
   #trackedFiles: string[] = [];
@@ -43,7 +45,7 @@ export class WorkTree {
   #currentPath: string = '';
 
   readonly #upperFolderItem: WorkTreeItem = {
-    name: '..',
+    name: WorkTree.UPPER_FOLDER_NAME,
     type: WorkTreeItemType.UPPER,
     indexStatus: WorkTreeItemStatus.NONE,
     workdirStatus: WorkTreeItemStatus.NONE,
@@ -82,7 +84,7 @@ export class WorkTree {
   #addDeletedFiles(files: WorkTreeItem[]): WorkTreeItem[] {
     const foundFiles = files.map((file) => file.name);
     const trackedFilesFromCurrentPath = this.#trackedFiles
-      .filter((file) => file.startsWith(this.#currentPath))
+      .filter((file) => file === this.#currentPath || file.startsWith(`${this.#currentPath}${sep}`))
       .map((file) => relative(this.#currentPath, file));
     const trackedFilesNotFoundInFS = trackedFilesFromCurrentPath.filter((file) => {
       const firstSegment = file.split(sep)[0];
@@ -174,18 +176,26 @@ export class WorkTree {
     });
   }
 
+  getCurrentFolderName() {
+    const segments = this.#currentPath.split(sep);
+    return segments[segments.length - 1];
+  }
+
   enterFolder(path: string) {
     const newPath = resolve(this.#rootPath, this.#currentPath, path);
     this.#currentPath = WorkTree.#calculateRelativePathSecured(this.#rootPath, newPath);
   }
 
   static #calculateRelativePathSecured(from: string, to: string) {
-    const relativePath = relative(from, to);
-    if (relativePath && !relativePath.startsWith('..') && !isAbsolute(relativePath)) {
-      return relativePath;
+    if (this.#isPathParent(from, to)) {
+      return '';
     }
+    return relative(from, to);
+  }
 
-    return '';
+  static #isPathParent(sourcePath: string, potentialParentPath: string): boolean {
+    const relativePath = relative(sourcePath, potentialParentPath);
+    return !relativePath || relativePath.startsWith(this.UPPER_FOLDER_NAME) || isAbsolute(relativePath);
   }
 
   static convertStatusToText(status: WorkTreeItemStatus): string {
