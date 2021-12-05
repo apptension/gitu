@@ -1,6 +1,7 @@
 import blessed, { Widgets } from 'blessed';
 import { Element, ElementConfig } from './Element';
 import { Git } from '../services/git';
+import TextOptions = Widgets.TextOptions;
 
 export class DiffElement extends Element {
   readonly #box: Widgets.TextElement;
@@ -20,14 +21,9 @@ export class DiffElement extends Element {
     super();
     this.#git = git;
     this.#box = blessed.text({
-      parent: config.parent,
-      border: { type: 'line' },
+      ...config as TextOptions,
       keys: true,
-      left: '30%',
-      top: '31%',
       bottom: 0,
-      width: '70%',
-      label: 'Diff',
       tags: true,
       scrollable: true,
       alwaysScroll: true,

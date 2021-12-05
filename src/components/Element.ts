@@ -10,6 +10,8 @@ export interface ElementConfig {
   width?: Widgets.Types.TPosition;
   height?: Widgets.Types.TPosition;
   parent?: Widgets.Node;
+  border?: Widgets.Border | null;
+  label?: string;
   git: Git;
 }
 
@@ -31,10 +33,14 @@ export abstract class Element<T extends Widgets.BlessedElement = Widgets.Blessed
     applyStylesTo: BlessedElement = this.instance,
   ) {
     handleFocusOn.on('focus', () => {
-      applyStylesTo.style.border.fg = 'red' as any;
+      if (applyStylesTo.style.border) {
+        applyStylesTo.style.border.fg = 'red' as any;
+      }
     });
     handleFocusOn.on('blur', () => {
-      applyStylesTo.style.border.fg = 'white' as any;
+      if (applyStylesTo.style.border) {
+        applyStylesTo.style.border.fg = 'white' as any;
+      }
     });
   }
 }

@@ -25,7 +25,7 @@ export class WorkTree {
 
   readonly #upperFolderItem: WorkTreeItem = {
     name: '..',
-    type: WorkTreeItemType.UPPER
+    type: WorkTreeItemType.UPPER,
   };
 
   constructor(git: Git) {

@@ -39,7 +39,9 @@ export class StashElement extends Element {
     this.#stashListBox = new StashListElement({ git, parent: this.#box });
     this.#filesModifiedBox = new StashModifiedFilesElement({ git, parent: this.#box });
     this.#popup = new PopupElement({ git, width: '35%', height: '20%' });
-    this.#diffBox = new DiffElement({ git, parent: this.#box });
+    this.#diffBox = new DiffElement({
+      git, parent: this.#box, left: '30%', top: '31%', width: '70%', label: 'Diff', border: { type: 'line' },
+    });
     this.#screen = this.#box.screen;
 
     this.#stashListBox.rows.key(['tab'], () => { this.#filesModifiedBox.focus(); this.#screen.render(); });

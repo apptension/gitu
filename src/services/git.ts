@@ -43,9 +43,8 @@ export class Git {
     return files;
   }
 
-  async getStashDiff(index: number) {
-    const result = await this.#git.raw('stash', 'show', `stash@{${index}}`, '-p');
-    const lines = result.split('\n');
+  addColorsToGiff(diff: string) : string {
+    const lines = diff.split('\n');
     let finalDiff = '';
     lines.forEach((line) => {
       if (line.startsWith('+')) {
@@ -57,6 +56,16 @@ export class Git {
       }
     });
     return finalDiff;
+  }
+
+  async getStashDiff(index: number) {
+    const result = await this.#git.raw('stash', 'show', `stash@{${index}}`, '-p');
+    return this.addColorsToGiff(result);
+  }
+
+  async getCommitDiff(sha: string) {
+    const result = await this.#git.show(sha);
+    return this.addColorsToGiff(result);
   }
 
   async renameStash(index: number, newName: string) {

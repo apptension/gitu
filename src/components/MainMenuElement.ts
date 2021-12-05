@@ -4,6 +4,7 @@ import { WorktreeElement } from './WorktreeElement';
 import { BranchesElement } from './BranchesElement';
 import { StashElement } from './StashElement';
 import { Git } from '../services/git';
+import ListbarOptions = Widgets.ListbarOptions;
 
 type MenuSelectCallback = (selectedElement: Element) => Promise<void>;
 
@@ -21,7 +22,7 @@ export class MainMenuElement extends Element {
 
     this.#git = git;
     this.#listbar = blessed.listbar({
-      ...config,
+      ...config as ListbarOptions,
       keys: true,
       mouse: true,
       autoCommandKeys: true,

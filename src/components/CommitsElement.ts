@@ -1,4 +1,5 @@
 import blessed, { Widgets } from 'blessed';
+import { DefaultLogFields, LogResult } from 'simple-git';
 import { Element, ElementConfig } from './Element';
 import { Git } from '../services/git';
 
@@ -9,8 +10,14 @@ export class CommitsElement extends Element {
 
   readonly #git: Git;
 
+  #log : LogResult<DefaultLogFields> | null = null;
+
   get instance() {
     return this.#box;
+  }
+
+  get logsList() {
+    return this.#logsList;
   }
 
   constructor({ git, ...config }: ElementConfig) {
@@ -55,11 +62,15 @@ export class CommitsElement extends Element {
     this.#logsList.focus();
   }
 
+  getCommitShaByIndex(index: number) {
+    return this.#log?.all[index].hash;
+  }
+
   async switchBranch(branch: string) {
     this.#logsList.clearItems();
     this.#box.setLabel(`Commits - ${branch}`);
-    const log = await this.#git.log(branch);
-    log.all.forEach((logLine) => {
+    this.#log = await this.#git.log(branch);
+    this.#log.all.forEach((logLine) => {
       this.#logsList.addItem(logLine.message);
     });
   }

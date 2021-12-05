@@ -3,6 +3,8 @@ import { Element, ElementConfig } from './Element';
 import { Git } from '../services/git';
 import { CommitsElement } from './CommitsElement';
 import { BranchesListElement } from './BranchesListElement';
+import { PopupElement } from './PopupElement';
+import { DiffElement } from './DiffElement';
 
 export class BranchesElement extends Element {
   readonly #box: Widgets.BoxElement;
@@ -10,6 +12,8 @@ export class BranchesElement extends Element {
   readonly #commitsBox: CommitsElement;
 
   readonly #branchesBox: BranchesListElement;
+
+  readonly #popupBox: PopupElement;
 
   readonly #git: Git;
 
@@ -42,6 +46,9 @@ export class BranchesElement extends Element {
       bottom: 0,
       parent: this.#box,
     });
+    this.#popupBox = new PopupElement({
+      git, width: '95%', height: '95%', label: 'Diff',
+    });
     this.applyBorderStyleForFocusedElement();
   }
 
@@ -58,6 +65,17 @@ export class BranchesElement extends Element {
       if (!isInitial) {
         await this.#commitsBox.onEnter();
       }
+      this.#box.screen.render();
+    });
+    this.#commitsBox.logsList.on('select', async (item: any, index: number) => {
+      this.#popupBox.show(this.#box, this.#commitsBox.logsList);
+      const commitSha = this.#commitsBox.getCommitShaByIndex(index);
+      const diff = await this.#git.getCommitDiff(commitSha || '');
+      const diffBox = new DiffElement({
+        git: this.#git, top: 0, left: 0, bottom: 0, right: 0, border: null,
+      });
+      diffBox.setContent(diff);
+      this.#popupBox.addChild(diffBox.instance);
       this.#box.screen.render();
     });
   }

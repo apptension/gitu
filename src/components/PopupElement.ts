@@ -2,15 +2,17 @@ import blessed, { Widgets } from 'blessed';
 import contrib from 'blessed-contrib';
 import { Element, ElementConfig } from './Element';
 import { Git } from '../services/git';
+import BoxElement = Widgets.BoxElement;
+import BlessedElement = Widgets.BlessedElement;
 
 export class PopupElement extends Element {
   readonly #box: Widgets.TextElement;
 
   #parent : Widgets.BoxElement | null = null;
 
-  #menuBox: contrib.Widgets.TableElement | null = null;
+  #initiator : Element | BoxElement | null = null;
 
-  #initiator : Element | null = null;
+  #children : BlessedElement[] = [];
 
   readonly #git: Git;
 
@@ -19,14 +21,35 @@ export class PopupElement extends Element {
   }
 
   override focus() {
-    if (this.#menuBox) {
-      this.#menuBox.focus();
+    if (this.#children.length) {
+      this.#children.at(-1)?.focus();
     } else {
       this.#box.focus();
     }
   }
 
-  show(parent: Widgets.BoxElement, initiator: Element) {
+  addChild(child: BlessedElement) {
+    this.#children.push(child);
+    this.#box.append(child);
+    child.focus();
+    child.key('escape', () => { this.detachChild(child); });
+  }
+
+  detachChild(child: BlessedElement) {
+    const index = this.#children.indexOf(child);
+    if (index > -1) {
+      this.#children.splice(index, 1);
+    }
+    child.detach();
+    if (this.#children.length) {
+      this.focus();
+    } else {
+      this.hide();
+    }
+    this.#box.screen.render();
+  }
+
+  show(parent: Widgets.BoxElement, initiator: Element | BoxElement) {
     this.#parent = parent;
     this.#parent.append(this.#box);
     this.#initiator = initiator;
@@ -45,7 +68,7 @@ export class PopupElement extends Element {
   }
 
   renderMenu(options: string[], handlers: any[]) {
-    this.#menuBox = contrib.table({
+    const menuBox = contrib.table({
       keys: true,
       columnWidth: [1000],
       top: 0,
@@ -54,13 +77,11 @@ export class PopupElement extends Element {
       bottom: 0,
       data: { headers: [''], data: options.map((option) => [option]) },
     });
-    this.#box.append(this.#menuBox);
-    (this.#menuBox as any).rows.on('select', (item: any, index: number) => {
+    this.addChild(menuBox);
+    (menuBox as any).rows.on('select', (item: any, index: number) => {
       handlers[index]();
     });
-    (this.#menuBox as any).rows.key('escape', () => { this.onEscape(); });
-
-    this.#menuBox.focus();
+    (menuBox as any).rows.key('escape', () => { this.detachChild(menuBox); });
   }
 
   renderTextInput(label: string, submitHandler: any) {
@@ -73,20 +94,20 @@ export class PopupElement extends Element {
       label,
       padding: 2,
     });
-    this.#box.append(textBox);
-    textBox.focus();
     textBox.on('submit', async (value: string) => { submitHandler(value); });
-    textBox.key('escape', () => { textBox.detach(); this.focus(); this.#box.screen.render(); });
+    this.addChild(textBox);
   }
 
   hide() {
+    while (this.#children.length) {
+      this.detachChild(this.#children.at(-1) as BlessedElement);
+    }
     this.#box.detach();
     this.#initiator?.focus();
   }
 
   onEscape() {
     this.hide();
-    this.#menuBox = null;
     this.#box.screen.render();
   }
 
@@ -95,7 +116,6 @@ export class PopupElement extends Element {
     this.#git = git;
     this.#box = blessed.box({
       ...config,
-      label: '',
       border: { type: 'line' },
       keys: true,
       top: 'center',
