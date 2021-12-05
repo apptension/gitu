@@ -79,7 +79,7 @@ export class Git {
 
   async getFileDiff(file: string, cached: boolean) {
     const baseOptions = cached ? ['--cached'] : [];
-    const result = await this.#git.diff([...baseOptions, file]);
+    const result = await this.#git.diff([...baseOptions, '--', file]);
     return this.addColorsToGiff(result);
   }
 

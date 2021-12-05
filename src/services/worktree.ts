@@ -86,8 +86,10 @@ export class WorkTree {
 
   #addDeletedFiles(files: WorkTreeItem[]): WorkTreeItem[] {
     const foundFiles = files.map((file) => file.name);
-    const trackedFilesFromCurrentPath = this.#trackedFiles
-      .filter((file) => file === this.#currentPath || file.startsWith(`${this.#currentPath}${sep}`))
+    const trackedFilesFromCurrentPath = [...this.#trackedFiles, ...this.#gitStatus.deleted]
+      .filter(
+        (file) => !this.#currentPath || file === this.#currentPath || file.startsWith(`${this.#currentPath}${sep}`)
+      )
       .map((file) => relative(this.#currentPath, file));
     const trackedFilesNotFoundInFS = trackedFilesFromCurrentPath.filter((file) => {
       const firstSegment = file.split(sep)[0];
@@ -137,7 +139,7 @@ export class WorkTree {
       const currentPath = this.#currentPath ? `${this.#currentPath}${sep}` : '';
       const relativeFilePath = `${currentPath}${file.name}`;
       const status = statusMap[relativeFilePath];
-      const isCurrentPathTracked = this.#trackedFiles.includes(relativeFilePath);
+      const isCurrentPathTracked = [...this.#trackedFiles, ...this.#gitStatus.deleted].includes(relativeFilePath);
       if (file.type === WorkTreeItemType.FILE) {
         const mapped = { ...file };
         if (!status) {
