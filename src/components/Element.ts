@@ -22,6 +22,10 @@ export abstract class Element<T extends Widgets.BlessedElement = Widgets.Blessed
     this.instance.focus();
   }
 
+  focus() {
+    this.instance.focus();
+  }
+
   applyBorderStyleForFocusedElement(
     handleFocusOn: BlessedElement = this.instance,
     applyStylesTo: BlessedElement = this.instance,

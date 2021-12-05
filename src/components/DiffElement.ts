@@ -11,10 +11,6 @@ export class DiffElement extends Element {
     return this.#box;
   }
 
-  focus() {
-    this.#box.focus();
-  }
-
   setContent(diff: string) {
     this.#box.setContent(diff);
     (this.#box as any).resetScroll();

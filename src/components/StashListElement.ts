@@ -14,10 +14,6 @@ export class StashListElement extends Element {
     return this.#box;
   }
 
-  focus() {
-    this.#box.focus();
-  }
-
   get rows() {
     return (this.#box as any).rows;
   }

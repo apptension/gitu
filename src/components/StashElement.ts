@@ -1,10 +1,10 @@
 import blessed, { Widgets } from 'blessed';
-import contrib from 'blessed-contrib';
 import { Git } from '../services/git';
 import { Element, ElementConfig } from './Element';
 import { StashListElement } from './StashListElement';
 import { DiffElement } from './DiffElement';
 import { StashModifiedFilesElement } from './StashModifiedFilesElement';
+import { PopupElement } from './PopupElement';
 
 export class StashElement extends Element {
   readonly #box: Widgets.BoxElement;
@@ -15,7 +15,7 @@ export class StashElement extends Element {
 
   readonly #diffBox: DiffElement;
 
-  readonly #stashMenuBox: contrib.Widgets.TableElement;
+  readonly #popup: PopupElement;
 
   readonly #screen: Widgets.Screen;
 
@@ -38,70 +38,13 @@ export class StashElement extends Element {
     });
     this.#stashListBox = new StashListElement({ git, parent: this.#box });
     this.#filesModifiedBox = new StashModifiedFilesElement({ git, parent: this.#box });
-    this.#stashMenuBox = this.createStashMenuBox();
+    this.#popup = new PopupElement({ git, width: '35%', height: '20%' });
     this.#diffBox = new DiffElement({ git, parent: this.#box });
     this.#screen = this.#box.screen;
 
     this.#stashListBox.rows.key(['tab'], () => { this.#filesModifiedBox.focus(); this.#screen.render(); });
     this.#filesModifiedBox.rows.key(['tab'], () => { this.#diffBox.focus(); this.#screen.render(); });
     this.#diffBox.instance.key(['tab'], () => { this.#stashListBox.focus(); this.#screen.render(); });
-
-    this.applyBorderStyleForFocusedElement((this.#stashMenuBox as any).rows, this.#stashMenuBox);
-  }
-
-  createStashMenuBox() : contrib.Widgets.TableElement {
-    const stashMenuBox = contrib.table({
-      parent: null,
-      label: '',
-      border: { type: 'line' },
-      keys: true,
-      columnWidth: [1000],
-      top: 'center',
-      left: 'center',
-      width: '35%',
-      height: '20%',
-      data: { headers: [''], data: [['apply'], ['drop'], ['rename']] },
-    });
-    (stashMenuBox as any).rows.key(['escape'], () => {
-      stashMenuBox.detach();
-      this.#selectedStashIndex = null;
-      this.#stashListBox.focus();
-      this.#screen.render();
-    });
-    (stashMenuBox as any).rows.on('select', this.handleStashMenuOptionSelect());
-    return stashMenuBox;
-  }
-
-  createRenameStashBox() : Widgets.TextboxElement {
-    const renameStashBox = blessed.textbox({
-      parent: this.instance,
-      top: 'center',
-      left: 'center',
-      width: '35%',
-      height: '20%',
-      inputOnFocus: true,
-      border: { type: 'line' },
-      label: 'Enter new stash name: ',
-      padding: 2,
-    });
-    this.applyBorderStyleForFocusedElement(renameStashBox, renameStashBox);
-
-    renameStashBox.key(['escape'], () => {
-      renameStashBox.detach();
-      this.#stashMenuBox.focus();
-      this.#screen.render();
-    });
-    renameStashBox.on('submit', async (value: string) => {
-      if (this.#selectedStashIndex != null) {
-        await this.#git.renameStash(this.#selectedStashIndex, value);
-        renameStashBox.detach();
-        this.#stashMenuBox.detach();
-        this.#stashListBox.focus();
-        await this.reloadStashes();
-        this.#screen.render();
-      }
-    });
-    return renameStashBox;
   }
 
   handleStashSelect() {
@@ -116,53 +59,52 @@ export class StashElement extends Element {
     };
   }
 
-  shrinkLabel(label: string, maxWidth: number) {
-    if (label.length > maxWidth) {
-      return `${label.substring(0, maxWidth)}...`;
-    }
-    return label;
-  }
-
   handleStashEnter() {
     return (item: any, index: number) => {
       this.#selectedStashIndex = index;
-      this.instance.append(this.#stashMenuBox);
-      (this.#stashMenuBox as any).rows.selected = 0;
-      this.#stashMenuBox.setLabel(
-        this.shrinkLabel(this.#stashListBox.stashes[index].message, this.#stashMenuBox.width as number - 7),
+      this.#popup.show(this.#box, this.#stashListBox);
+      this.#popup.renderMenu(
+        ['apply', 'drop', 'rename'],
+        [this.applyStashHandler.bind(this), this.dropStashHandler.bind(this), this.renameStashHandler.bind(this)],
       );
-      this.#stashMenuBox.focus();
+      this.#popup.setLabel(this.#stashListBox.stashes[index].message);
       this.#screen.render();
     };
   }
 
-  handleStashMenuOptionSelect() {
-    const ACTION_APPLY = 0;
-    const ACTION_DROP = 1;
-    const ACTION_RENAME = 2;
+  async applyStashHandler() {
+    console.error('Not implemented yet.');
+  }
 
-    return async (item: any, index: number) => {
-      if (index === ACTION_APPLY) {
-        console.error('Not implemented yet.');
-      } else if (index === ACTION_DROP) {
-        if (this.#selectedStashIndex != null) {
-          await this.#git.dropStash(this.#selectedStashIndex);
-          this.#stashMenuBox.detach();
-          this.#stashListBox.focus();
-          await this.reloadStashes();
-          this.#screen.render();
-        }
-      } else if (index === ACTION_RENAME) {
-        const renameStashBox = this.createRenameStashBox();
-        renameStashBox.focus();
-        this.#screen.render();
-      }
-    };
+  async dropStashHandler() {
+    if (this.#selectedStashIndex != null) {
+      await this.#git.dropStash(this.#selectedStashIndex);
+      this.#popup.hide();
+      await this.reloadStashes();
+      this.#screen.render();
+    }
+  }
+
+  async renameStashHandler() {
+    this.#popup.renderTextInput('Enter new stash name: ', this.renameStashSubmitHandler.bind(this));
+    this.#screen.render();
+  }
+
+  async renameStashSubmitHandler(value: string) {
+    if (this.#selectedStashIndex != null) {
+      await this.#git.renameStash(this.#selectedStashIndex, value);
+      this.#popup.hide();
+      await this.reloadStashes();
+      this.#screen.render();
+    }
   }
 
   async reloadStashes() {
     await this.#stashListBox.reload();
     this.#selectedStashIndex = null;
+    if (this.#stashListBox.stashes) {
+      await this.handleStashSelect()({}, 0);
+    }
   }
 
   override async init(): Promise<void> {
