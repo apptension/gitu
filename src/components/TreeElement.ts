@@ -2,7 +2,12 @@ import blessed, { Widgets } from 'blessed';
 import contrib, { Widgets as ContribWidgets } from 'blessed-contrib';
 import { Element, ElementConfig } from './Element';
 import { Git } from '../services/git';
-import { WorkTree, WorkTreeItem, WorkTreeItemType } from '../services/worktree';
+import {
+  WorkTree,
+  WorkTreeItem,
+  WorkTreeItemStatus,
+  WorkTreeItemType,
+} from '../services/worktree';
 import { DefaultTheme } from '../themes/default';
 
 export class TreeElement extends Element {
@@ -42,17 +47,33 @@ export class TreeElement extends Element {
       columnSpacing: 2,
       columnWidth: [1, 1, 80],
     });
-    this.applyBorderStyleForFocusedElement(this.#treeTable, this.#box);
+    this.applyBorderStyleForFocusedElement(this.#rows, this.#box);
   }
 
-  override async init(onTab?: () => void): Promise<void> {
+  override async init(
+    onTab?: () => void,
+    onDiffFor?: (path: string, useNormal: boolean, useCached: boolean) => void,
+  ): Promise<void> {
     await this.#worktree.init();
     await this.loadData();
-    this.#treeTable.key(['tab'], () => onTab?.());
+    this.#rows.key(['tab'], () => onTab?.());
     this.#rows.on('select', async (_, index) => {
       if (this.#currentItems[index]) {
-        if (this.#currentItems[index].type !== WorkTreeItemType.FILE) {
-          const newFolderName = this.#currentItems[index].name;
+        const currentFile = this.#currentItems[index];
+        if (currentFile.type === WorkTreeItemType.FILE) {
+          const statusesWithNonEmptyDiff = [
+            WorkTreeItemStatus.DELETED,
+            WorkTreeItemStatus.ADDED,
+            WorkTreeItemStatus.MODIFIED,
+            WorkTreeItemStatus.CONFLICTED,
+          ];
+          const useNormal = statusesWithNonEmptyDiff.includes(currentFile.workdirStatus);
+          const useCached = statusesWithNonEmptyDiff.includes(currentFile.indexStatus);
+          if (useCached || useNormal) {
+            onDiffFor?.(this.#worktree.getFullRelativePathToFile(currentFile.name), useNormal, useCached);
+          }
+        } else {
+          const newFolderName = currentFile.name;
           const currentFolderName = this.#worktree.getCurrentFolderName();
           this.#worktree.enterFolder(newFolderName);
           await this.loadData();

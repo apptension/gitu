@@ -77,6 +77,12 @@ export class Git {
     return this.addColorsToGiff(result);
   }
 
+  async getFileDiff(file: string, cached: boolean) {
+    const baseOptions = cached ? ['--cached'] : [];
+    const result = await this.#git.diff([...baseOptions, file]);
+    return this.addColorsToGiff(result);
+  }
+
   async renameStash(index: number, newName: string) {
     const dropResult = await this.#git.raw('stash', 'drop', `stash@{${index}}`);
     const match = dropResult.match(/\(([0-9a-f]*)\)/m);

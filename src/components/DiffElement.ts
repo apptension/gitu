@@ -31,4 +31,12 @@ export class DiffElement extends Element {
     });
     this.applyBorderStyleForFocusedElement(this.#box, this.#box);
   }
+
+  override async init(onTab?: () => void): Promise<void> {
+    this.#box.key(['tab'], () => onTab?.());
+  }
+
+  override async onEnter(): Promise<void> {
+    this.#box.focus();
+  }
 }

@@ -1,6 +1,6 @@
 import { readdir } from 'fs/promises';
 import {
-  resolve, relative, isAbsolute, sep,
+  resolve, relative, isAbsolute, sep, join
 } from 'path';
 import { FileStatusResult, StatusResult } from 'simple-git';
 import { StatusSummary } from 'simple-git/src/lib/responses/StatusSummary';
@@ -184,6 +184,10 @@ export class WorkTree {
   enterFolder(path: string) {
     const newPath = resolve(this.#rootPath, this.#currentPath, path);
     this.#currentPath = WorkTree.#calculateRelativePathSecured(this.#rootPath, newPath);
+  }
+
+  getFullRelativePathToFile(file: string): string {
+    return join(this.#currentPath, file);
   }
 
   static #calculateRelativePathSecured(from: string, to: string) {
