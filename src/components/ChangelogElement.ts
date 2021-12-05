@@ -5,6 +5,7 @@ import { Element, ElementConfig } from './Element';
 import { BranchesListElement } from './BranchesListElement';
 import { CommitsElement } from './CommitsElement';
 import { PopupElement } from './PopupElement';
+import { Changelog } from '../services/changelog';
 
 export class ChangelogElement extends Element {
   readonly #box: Widgets.BoxElement;
@@ -101,10 +102,7 @@ export class ChangelogElement extends Element {
   generateChangelogSubmitHandler(value: string) {
     const { selectedCommits } = this.#commitsBox;
     if (selectedCommits) {
-      let fileContent = '# Changelog\n## [Unreleased]\n### Changed\n';
-      selectedCommits.forEach((commit) => {
-        fileContent += `- ${commit}\n`;
-      });
+      const fileContent = Changelog.generate(selectedCommits);
       fs.writeFileSync(value, fileContent);
     }
 

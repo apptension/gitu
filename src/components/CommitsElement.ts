@@ -23,8 +23,8 @@ export class CommitsElement extends Element {
     return this.#logsList;
   }
 
-  get selectedCommits() {
-    return this.#selectedCommits.map((index) => this.#log?.all[index].message);
+  get selectedCommits() : string[] {
+    return this.#selectedCommits.map((index) => this.#log?.all[index].message || '');
   }
 
   toggleCommit(index: number) {
