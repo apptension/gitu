@@ -13,12 +13,31 @@ export class CommitsElement extends Element {
 
   #log : LogResult<DefaultLogFields> | null = null;
 
+  #selectedCommits : number[] = [];
+
   get instance() {
     return this.#box;
   }
 
   get logsList() {
     return this.#logsList;
+  }
+
+  get selectedCommits() {
+    return this.#selectedCommits.map((index) => this.#log?.all[index].message);
+  }
+
+  toggleCommit(index: number) {
+    const item = this.#logsList.getItem(index);
+
+    if (!this.#selectedCommits.includes(index)) {
+      this.#selectedCommits.push(index);
+      item.style.bg = 'grey';
+    } else {
+      const i = this.#selectedCommits.indexOf(index);
+      this.#selectedCommits.splice(i, 1);
+      item.style.bg = 'transparent';
+    }
   }
 
   constructor({ git, ...config }: ElementConfig) {
@@ -39,6 +58,7 @@ export class CommitsElement extends Element {
       keys: true,
       mouse: true,
       style: DefaultTheme.listStyle,
+      tags: true,
     });
     this.applyBorderStyleForFocusedElement(this.#logsList, this.#box);
   }
@@ -57,6 +77,7 @@ export class CommitsElement extends Element {
 
   clear() {
     this.#logsList.clearItems();
+    this.#selectedCommits = [];
     this.#box.setLabel('Commits');
   }
 
@@ -77,5 +98,9 @@ export class CommitsElement extends Element {
     this.#box.setLabel(`Commits - ${source} vs ${target}`);
     this.#log = await this.#git.logBetweenBranches(source, target);
     this.showCommits();
+    this.#selectedCommits = [];
+    for (let i = 0; i < this.#log.all.length; i += 1) {
+      this.toggleCommit(i);
+    }
   }
 }

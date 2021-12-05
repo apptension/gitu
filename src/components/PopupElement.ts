@@ -86,13 +86,14 @@ export class PopupElement extends Element {
     menuBox.key('escape', () => { this.detachChild(menuBox); });
   }
 
-  renderTextInput(label: string, submitHandler: any) {
+  renderTextInput(label: string, submitHandler: any, initialValue: string) {
     const textBox = blessed.textbox({
       top: 0,
       left: 0,
       right: 0,
       bottom: 0,
       inputOnFocus: true,
+      value: initialValue,
       label,
       padding: 2,
     });

@@ -88,7 +88,7 @@ export class StashElement extends Element {
   }
 
   async renameStashHandler() {
-    this.#popup.renderTextInput('Enter new stash name: ', this.renameStashSubmitHandler.bind(this));
+    this.#popup.renderTextInput('Enter new stash name: ', this.renameStashSubmitHandler.bind(this), '');
     this.#screen.render();
   }
 

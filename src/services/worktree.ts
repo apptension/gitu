@@ -1,6 +1,6 @@
 import { readdir } from 'fs/promises';
 import {
-  resolve, relative, isAbsolute, sep, join
+  resolve, relative, isAbsolute, sep, join,
 } from 'path';
 import { FileStatusResult, StatusResult } from 'simple-git';
 import { StatusSummary } from 'simple-git/src/lib/responses/StatusSummary';

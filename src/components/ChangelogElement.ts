@@ -1,8 +1,10 @@
 import blessed, { Widgets } from 'blessed';
+import * as fs from 'fs';
 import { Git } from '../services/git';
 import { Element, ElementConfig } from './Element';
 import { BranchesListElement } from './BranchesListElement';
 import { CommitsElement } from './CommitsElement';
+import { PopupElement } from './PopupElement';
 
 export class ChangelogElement extends Element {
   readonly #box: Widgets.BoxElement;
@@ -12,6 +14,10 @@ export class ChangelogElement extends Element {
   readonly #targetBranchSelector: BranchesListElement;
 
   readonly #commitsBox: CommitsElement;
+
+  readonly #buttonBox: Widgets.ButtonElement;
+
+  readonly #popup: PopupElement;
 
   readonly #git: Git;
 
@@ -51,9 +57,21 @@ export class ChangelogElement extends Element {
       left: '50%',
       top: 1,
       right: 0,
-      bottom: 0,
+      height: '90%-1',
       parent: this.#box,
     });
+    this.#buttonBox = blessed.button({
+      left: '50%',
+      right: 0,
+      top: '90%',
+      border: 'line',
+      bottom: 0,
+      content: 'Generate Changelog',
+      bg: 'blue',
+      mouse: true,
+      parent: this.#box,
+    });
+    this.#popup = new PopupElement({ git, width: '35%', height: '20%' });
   }
 
   async showBranchesDiff(sourceBranch: string, targetBranch: string) {
@@ -78,6 +96,19 @@ export class ChangelogElement extends Element {
     }
   }
 
+  generateChangelogSubmitHandler(value: string) {
+    const { selectedCommits } = this.#commitsBox;
+    if (selectedCommits) {
+      let fileContent = '# Changelog\n## [Unreleased]\n### Changed\n';
+      selectedCommits.forEach((commit) => {
+        fileContent += `- ${commit}\n`;
+      });
+      fs.writeFileSync(value, fileContent);
+    }
+
+    this.#popup.hide();
+  }
+
   override async init(): Promise<void> {
     await this.#sourceBranchSelector.init(() => {
       this.#targetBranchSelector.onEnter();
@@ -92,8 +123,29 @@ export class ChangelogElement extends Element {
       await this.handleBranchSelect();
     });
     await this.#commitsBox.init(() => {
+      this.#buttonBox.focus();
+      this.#box.screen.render();
+    });
+    this.#commitsBox.logsList.on('select', async (item: any, index: number) => {
+      this.#commitsBox.toggleCommit(index);
+      this.#box.screen.render();
+    });
+
+    this.#buttonBox.key(['tab'], () => {
       this.#sourceBranchSelector.onEnter();
       this.#box.screen.render();
+    });
+    this.applyBorderStyleForFocusedElement(this.#buttonBox, this.#buttonBox);
+    this.#buttonBox.on('press', () => {
+      if (this.#commitsBox.selectedCommits?.length) {
+        this.#popup.show(this.#box, this.#buttonBox);
+        this.#popup.renderTextInput(
+          'Changelog path: ',
+          this.generateChangelogSubmitHandler.bind(this),
+          `${process.cwd()}/changelog.txt`,
+        );
+        this.#box.screen.render();
+      }
     });
   }
 
