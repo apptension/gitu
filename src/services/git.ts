@@ -81,7 +81,7 @@ export class Git {
 
   async getTrackedFiles(): Promise<string[]> {
     const lsFilesResponse = await this.#git.raw('ls-files');
-    return lsFilesResponse.split('/n');
+    return lsFilesResponse.split('\n').filter((file) => file);
   }
 
   async getStatus() {
