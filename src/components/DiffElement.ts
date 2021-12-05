@@ -23,6 +23,7 @@ export class DiffElement extends Element {
     this.#box = blessed.text({
       ...config as TextOptions,
       keys: true,
+      mouse: true,
       bottom: 0,
       tags: true,
       scrollable: true,

@@ -17,6 +17,7 @@ export class StashModifiedFilesElement extends Element {
 
   setData(files: string[]) {
     this.#box.setData({ headers: [''], data: files.map((file) => [file]) });
+    (this.#box as any).rows.selected = 0;
   }
 
   constructor({ git, ...config } : ElementConfig) {
@@ -28,11 +29,11 @@ export class StashModifiedFilesElement extends Element {
       columnWidth: [1000],
       border: { type: 'line' },
       keys: true,
+      mouse: true,
       left: '30%',
       height: '30%',
       width: '70%',
       label: 'Modified files',
-      interactive: false as any,
     });
     this.applyBorderStyleForFocusedElement((this.#box as any).rows, this.#box);
   }

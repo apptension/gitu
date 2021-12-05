@@ -37,6 +37,7 @@ export class BranchesElement extends Element {
       width: '30%',
       bottom: 0,
       parent: this.#box,
+      label: 'Branches',
     });
     this.#commitsBox = new CommitsElement({
       git,

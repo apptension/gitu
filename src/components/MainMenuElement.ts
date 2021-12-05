@@ -5,6 +5,7 @@ import { BranchesElement } from './BranchesElement';
 import { StashElement } from './StashElement';
 import { Git } from '../services/git';
 import ListbarOptions = Widgets.ListbarOptions;
+import { ChangelogElement } from './ChangelogElement';
 
 type MenuSelectCallback = (selectedElement: Element) => Promise<void>;
 
@@ -66,6 +67,9 @@ export class MainMenuElement extends Element {
     }, {
       name: 'Stash',
       element: new StashElement(elementsConfig),
+    }, {
+      name: 'Changelog',
+      element: new ChangelogElement(elementsConfig),
     }];
 
     items.forEach((item) => {

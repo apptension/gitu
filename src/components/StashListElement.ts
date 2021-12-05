@@ -41,6 +41,7 @@ export class StashListElement extends Element {
       label: 'Stashes',
       border: { type: 'line' },
       keys: true,
+      mouse: true,
     });
     this.#stashes = [];
     this.applyBorderStyleForFocusedElement((this.#box as any).rows, this.#box);

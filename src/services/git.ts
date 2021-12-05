@@ -15,6 +15,10 @@ export class Git {
     return this.#git.log([branch]);
   }
 
+  async logBetweenBranches(source: string, target:string) {
+    return this.#git.log({ from: source, to: target });
+  }
+
   async branches() {
     return this.#git.branch();
   }

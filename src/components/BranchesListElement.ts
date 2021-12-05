@@ -9,6 +9,12 @@ export class BranchesListElement extends Element {
 
   readonly #git: Git;
 
+  #currentBranch : string | null = null;
+
+  get currentBranch() {
+    return this.#currentBranch;
+  }
+
   get instance() {
     return this.#box;
   }
@@ -20,7 +26,6 @@ export class BranchesListElement extends Element {
     this.#box = blessed.box({
       ...config,
       border: 'line',
-      label: 'Branches',
     });
     this.#branchesList = blessed.list({
       left: 0,
@@ -62,9 +67,11 @@ export class BranchesListElement extends Element {
     });
     this.#branchesList.key(['tab'], () => onTab?.());
     this.#branchesList.on('select', (_, index) => {
-      onSelect?.(branches.all[index], false);
+      this.#currentBranch = branches.all[index];
+      onSelect?.(this.#currentBranch, false);
     });
     this.#branchesList.select(currentBranchIndex);
+    this.#currentBranch = branches.current;
     onSelect?.(branches.current, true);
   }
 

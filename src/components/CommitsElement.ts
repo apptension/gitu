@@ -66,12 +66,27 @@ export class CommitsElement extends Element {
     return this.#log?.all[index].hash;
   }
 
-  async switchBranch(branch: string) {
+  clear() {
     this.#logsList.clearItems();
-    this.#box.setLabel(`Commits - ${branch}`);
-    this.#log = await this.#git.log(branch);
-    this.#log.all.forEach((logLine) => {
+    this.#box.setLabel('Commits');
+  }
+
+  showCommits() {
+    this.#logsList.clearItems();
+    this.#log?.all.forEach((logLine) => {
       this.#logsList.addItem(logLine.message);
     });
+  }
+
+  async switchBranch(branch: string) {
+    this.#box.setLabel(`Commits - ${branch}`);
+    this.#log = await this.#git.log(branch);
+    this.showCommits();
+  }
+
+  async showDiffBetweenBranches(source: string, target: string) {
+    this.#box.setLabel(`Commits - ${source} vs ${target}`);
+    this.#log = await this.#git.logBetweenBranches(source, target);
+    this.showCommits();
   }
 }
