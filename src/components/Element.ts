@@ -13,7 +13,7 @@ export interface ElementConfig {
   git: Git;
 }
 
-export abstract class Element<T extends Widgets.BoxElement = Widgets.BoxElement> {
+export abstract class Element<T extends Widgets.BlessedElement = Widgets.BlessedElement> {
   abstract get instance(): T;
 
   async init(): Promise<void> {}
@@ -23,8 +23,8 @@ export abstract class Element<T extends Widgets.BoxElement = Widgets.BoxElement>
   }
 
   applyBorderStyleForFocusedElement(
-    handleFocusOn: Widgets.BoxElement | BlessedElement = this.instance,
-    applyStylesTo: Widgets.BoxElement | BlessedElement = this.instance,
+    handleFocusOn: BlessedElement = this.instance,
+    applyStylesTo: BlessedElement = this.instance,
   ) {
     handleFocusOn.on('focus', () => {
       applyStylesTo.style.border.fg = 'red' as any;

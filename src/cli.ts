@@ -2,12 +2,13 @@ import blessed, { Widgets } from 'blessed';
 
 import { MainMenuElement } from './components/MainMenuElement';
 import { Git } from './services/git';
+import BlessedElement = Widgets.BlessedElement;
 
 const screen = blessed.screen();
 
 const git: Git = new Git();
 
-let currentElement: Widgets.BoxElement | null = null;
+let currentElement: BlessedElement | null = null;
 
 const wrapper = blessed.box({
   parent: screen,

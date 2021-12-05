@@ -2,15 +2,18 @@ import blessed, { Widgets } from 'blessed';
 import contrib from 'blessed-contrib';
 import { Git } from '../services/git';
 import { Element, ElementConfig } from './Element';
+import { StashListElement } from './StashListElement';
+import { DiffElement } from './DiffElement';
+import { StashModifiedFilesElement } from './StashModifiedFilesElement';
 
 export class StashElement extends Element {
   readonly #box: Widgets.BoxElement;
 
-  readonly #stashListBox: contrib.Widgets.TableElement;
+  readonly #stashListBox: StashListElement;
 
-  readonly #filesModifiedBox: contrib.Widgets.TableElement;
+  readonly #filesModifiedBox: StashModifiedFilesElement;
 
-  readonly #diffBox: Widgets.TextElement;
+  readonly #diffBox: DiffElement;
 
   readonly #stashMenuBox: contrib.Widgets.TableElement;
 
@@ -33,48 +36,31 @@ export class StashElement extends Element {
       border: 'line',
       label: 'Stash',
     });
-    this.#stashListBox = this.createStashListBox();
-    this.#filesModifiedBox = this.createFilesModifiedBox();
+    this.#stashListBox = new StashListElement({ git, parent: this.#box });
+    this.#filesModifiedBox = new StashModifiedFilesElement({ git, parent: this.#box });
     this.#stashMenuBox = this.createStashMenuBox();
-    this.#diffBox = this.createDiffBox();
-    this.#screen = this.#stashListBox.screen;
-    (this.#stashListBox as any).rows.key(['tab'], () => { this.#filesModifiedBox.focus(); this.#screen.render(); });
-    (this.#filesModifiedBox as any).rows.key(['tab'], () => { this.#diffBox.focus(); this.#screen.render(); });
-    this.#diffBox.key(['tab'], () => { this.#stashListBox.focus(); this.#screen.render(); });
-    this.applyBorderStyleForFocusedElement((this.#stashListBox as any).rows, this.#stashListBox);
-    this.applyBorderStyleForFocusedElement((this.#filesModifiedBox as any).rows, this.#filesModifiedBox);
+    this.#diffBox = new DiffElement({ git, parent: this.#box });
+    this.#screen = this.#box.screen;
+
+    this.#stashListBox.rows.key(['tab'], () => { this.#filesModifiedBox.focus(); this.#screen.render(); });
+    this.#filesModifiedBox.rows.key(['tab'], () => { this.#diffBox.focus(); this.#screen.render(); });
+    this.#diffBox.instance.key(['tab'], () => { this.#stashListBox.focus(); this.#screen.render(); });
+
     this.applyBorderStyleForFocusedElement((this.#stashMenuBox as any).rows, this.#stashMenuBox);
-    this.applyBorderStyleForFocusedElement(this.#diffBox, this.#diffBox);
-  }
-
-  defaultTableOptions() : contrib.Widgets.TableOptions {
-    return {
-      parent: this.instance,
-      top: 1,
-      width: '30%',
-      columnWidth: [1000],
-      label: '',
-      border: { type: 'line' },
-      keys: true,
-    };
-  }
-
-  createStashListBox() : contrib.Widgets.TableElement {
-    return contrib.table({
-      ...this.defaultTableOptions(),
-      bottom: 0,
-      label: 'Stashes',
-    });
   }
 
   createStashMenuBox() : contrib.Widgets.TableElement {
     const stashMenuBox = contrib.table({
-      ...this.defaultTableOptions(),
       parent: null,
+      label: '',
+      border: { type: 'line' },
+      keys: true,
+      columnWidth: [1000],
       top: 'center',
       left: 'center',
       width: '35%',
       height: '20%',
+      data: { headers: [''], data: [['apply'], ['drop'], ['rename']] },
     });
     (stashMenuBox as any).rows.key(['escape'], () => {
       stashMenuBox.detach();
@@ -118,39 +104,14 @@ export class StashElement extends Element {
     return renameStashBox;
   }
 
-  createFilesModifiedBox() : contrib.Widgets.TableElement {
-    return contrib.table({
-      ...this.defaultTableOptions(),
-      left: '30%',
-      height: '30%',
-      width: '70%',
-      label: 'Files modified',
-      interactive: false as any,
-    });
-  }
-
-  createDiffBox() : Widgets.TextElement {
-    return blessed.text({
-      ...this.defaultTableOptions(),
-      left: '30%',
-      top: '31%',
-      bottom: 0,
-      width: '70%',
-      label: 'Diff',
-      tags: true,
-      scrollable: true,
-      alwaysScroll: true,
-      keyable: true,
-    });
-  }
-
   handleStashSelect() {
     return async (item: any, index: number) => {
       const files = await this.#git.getModifiedFilesFromStash(index);
-      this.#filesModifiedBox.setData({ headers: [''], data: files.map((file) => [file]) });
+      this.#filesModifiedBox.setData(files);
+
       const diff = await this.#git.getStashDiff(index);
       this.#diffBox.setContent(diff);
-      (this.#diffBox as any).resetScroll();
+
       this.#screen.render();
     };
   }
@@ -162,13 +123,14 @@ export class StashElement extends Element {
     return label;
   }
 
-  handleStashEnter(stashes: any) {
+  handleStashEnter() {
     return (item: any, index: number) => {
       this.#selectedStashIndex = index;
       this.instance.append(this.#stashMenuBox);
       (this.#stashMenuBox as any).rows.selected = 0;
-      this.#stashMenuBox.setData({ headers: [''], data: [['apply'], ['drop'], ['rename']] });
-      this.#stashMenuBox.setLabel(this.shrinkLabel(stashes[index].message, this.#stashMenuBox.width as number - 7));
+      this.#stashMenuBox.setLabel(
+        this.shrinkLabel(this.#stashListBox.stashes[index].message, this.#stashMenuBox.width as number - 7),
+      );
       this.#stashMenuBox.focus();
       this.#screen.render();
     };
@@ -199,16 +161,13 @@ export class StashElement extends Element {
   }
 
   async reloadStashes() {
-    const stashList = await this.#git.stashList();
-    const stashes = stashList.all;
-    this.#stashListBox.setData({ headers: [''], data: stashes.map((stashItem) => [stashItem.message]) });
-    (this.#stashListBox as any).rows.on('select', this.handleStashEnter(stashes));
-    (this.#stashListBox as any).rows.selected = 0;
+    await this.#stashListBox.reload();
     this.#selectedStashIndex = null;
   }
 
   override async init(): Promise<void> {
-    (this.#stashListBox as any).rows.on('select item', this.handleStashSelect());
+    this.#stashListBox.rows.on('select item', this.handleStashSelect());
+    this.#stashListBox.rows.on('select', this.handleStashEnter());
     await this.reloadStashes();
   }
 
